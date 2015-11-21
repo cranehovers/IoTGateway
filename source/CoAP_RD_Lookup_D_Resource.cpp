@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "CoAP_RD_Lookup_D_Resource.h"
 #include "CoAP_Wrapper.h"
+#include "coap.h"
 
 CoAPRDLookUpDomainResource::CoAPRDLookUpDomainResource(CoAPWrapper* ctx)
 :CoAPResource(ctx)
@@ -32,6 +33,48 @@ void* CoAPRDLookUpDomainResource::Create()
     SetCoAPResource(rd_resource);
 
     return rd_resource;
+}
+
+void CoAPRDLookUpDomainResource::handler_get(CoAPCallback &callback)
+{
+    std::list<std::string> domain_list;
+
+    find_domain_list(domain_list);
+
+    if (domain_list.empty())
+    {    
+        coap_pdu_t *response = (coap_pdu_t*)callback.response_;
+        
+        /* create response */
+        response->hdr->code = COAP_RESPONSE_404;
+    }
+    else
+    {
+        unsigned char buf[3];
+        std::string result;
+        
+        coap_pdu_t *response = (coap_pdu_t*)callback.response_;
+        
+        /* create response */
+        response->hdr->code = COAP_RESPONSE_CODE(205);
+
+        coap_add_option(response, COAP_OPTION_CONTENT_TYPE,
+                        coap_encode_var_bytes(buf, COAP_MEDIATYPE_APPLICATION_LINK_FORMAT), buf);
+        
+        coap_add_option(response, COAP_OPTION_MAXAGE,
+                        coap_encode_var_bytes(buf, 0x2ffff), buf);   
+
+        std::list<std::string>::iterator e = domain_list.begin();
+
+        for (; e != domain_list.end(); ++e)
+        {
+            result += "</rd>;d=\"" + *e + "\",";
+        }
+
+        coap_add_data(response, result.length(), (unsigned char*)result.c_str());
+            
+    }
+    
 }
 
 
