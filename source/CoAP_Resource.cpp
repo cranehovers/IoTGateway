@@ -128,6 +128,47 @@ std::string CoAPResource::uri()
     return uri_;
 }
 
+std::string CoAPResource::get_domain()
+{
+    std::string result;
+    
+    if (attr_.find("d") != attr_.end())
+        return (*attr_.find("d")).second;
+
+    return result;
+}
+
+std::string CoAPResource::get_context()
+{
+    std::string result;
+    
+    if (attr_.find("con") != attr_.end())
+        return (*attr_.find("con")).second;
+
+    return result;
+
+}
+
+std::string CoAPResource::get_ep()
+{
+    std::string result;
+    
+    if (attr_.find("ep")!= attr_.end())
+        return (*attr_.find("ep")).second;
+
+    return result;
+}
+
+std::string CoAPResource::get_et()
+{
+    std::string result;
+    
+    if (attr_.find("et")!= attr_.end())
+        return (*attr_.find("et")).second;
+
+    return result;
+}
+    
 void CoAPResource::SetCoAPResource(void *coap_resource)
 {
     coap_resource_ = coap_resource;
@@ -266,4 +307,58 @@ void CoAPResource::update(CoAPCallback &callback)
     
 }
 
+void CoAPResource::find_domain_list(std::list<std::string> &domain_list)
+{
+    CoAPResource::coap_resource_cache_t::iterator e = ep_cache_.begin();
+
+    for (; e != ep_cache_.end(); ++e)
+    {
+        std::string d = (*e)->get_domain();
+
+        std::list<std::string>::iterator f = 
+            std::find(domain_list.begin(), domain_list.end(), d);
+
+        if ( f == domain_list.end())
+        {
+            domain_list.push_back(d);
+        }
+    }
+}
+
+void CoAPResource::find_ep_result(std::string &ep_result)
+{
+    CoAPResource::coap_resource_cache_t::iterator e = ep_cache_.begin();
+
+    for (; e != ep_cache_.end(); ++e)
+    {
+        std::string d = (*e)->get_domain();
+        std::string ep = (*e)->get_ep();
+        std::string con = (*e)->get_context();
+        std::string et = (*e)->get_et();
+
+
+        ACE_DEBUG((LM_DEBUG, "\nd=%s, ep=%s, con=%s\n, et=%s\n",
+                               d.c_str(),
+                               ep.c_str(),
+                               con.c_str(),
+                               et.c_str()));
+
+        if( d.empty() || ep.empty() || con.empty())
+        {
+            continue;    
+        }
+        
+        ep_result += "<"+con+">;ep=\"" + ep +"\"";
+        ep_result += ";d=\""+ d +"\"";
+        
+        if(!et.empty())
+        {
+            ep_result += ";et=\""+ et +"\"";
+        }
+                
+        ep_result += ",";
+
+    }
+    
+}
 

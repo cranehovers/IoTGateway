@@ -155,12 +155,3 @@ CoAPResource *CoAP_RD_Resource::create_node_resource(CoAPCallback &callback,
 }
 
 
-
-
-
-
-
-
-
-
-

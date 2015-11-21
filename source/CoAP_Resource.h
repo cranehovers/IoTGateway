@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <algorithm>
 
 
 class CoAPWrapper;
@@ -39,6 +40,10 @@ public:
     void SetAttr(CoAP_Attr& attr);
     void SetCoAPResource(void *coap_resource);
     std::string uri();
+    std::string get_domain();
+    std::string get_context();
+    std::string get_ep();
+    std::string get_et();
     bool compare(std::string &domain, std::string &ep);
     void update(CoAPCallback &callback);
     void update_lifetime(int lt);
@@ -56,6 +61,8 @@ protected:
     CoAPWrapper *get_wrapper();
     CoAPResource *find_resource_from_cache_by_ep(std::string &domain, std::string &ep);
     void add_node_to_cache(CoAPResource *r);
+    void find_domain_list(std::list<std::string> &domain_list);
+    void find_ep_result(std::string &ep);
     
 private:
 
