@@ -15,6 +15,7 @@ public:
 
     CoAPRDLookUpEPResource(CoAPWrapper* ctx);
     virtual ~CoAPRDLookUpEPResource();
+    virtual void handler_get(CoAPCallback &callback);
 
     void* Create();
 
