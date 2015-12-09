@@ -44,6 +44,7 @@ public:
     std::string get_context();
     std::string get_ep();
     std::string get_et();
+    std::string get_payload();
     bool compare(std::string &domain, std::string &ep);
     void update(CoAPCallback &callback);
     void update_lifetime(int lt);

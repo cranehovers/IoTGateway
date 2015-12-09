@@ -168,7 +168,13 @@ std::string CoAPResource::get_et()
 
     return result;
 }
-    
+
+std::string CoAPResource::get_payload()
+{
+    return payload_;
+}
+
+
 void CoAPResource::SetCoAPResource(void *coap_resource)
 {
     coap_resource_ = coap_resource;
@@ -325,6 +331,43 @@ void CoAPResource::find_domain_list(std::list<std::string> &domain_list)
     }
 }
 
+static bool find_sub_resource_from_payload(std::string &payload,
+                                    std::string &con,
+                                    std::string &ep,
+                                    std::string &result)
+{
+    bool is_found = false;
+    
+    if ( payload.empty() )
+    {
+        return is_found;
+    }
+
+    std::size_t found = payload.find_first_of(",");
+    std::size_t index = 0;
+    
+    while( found != std::string::npos )
+    {
+        if (payload[index] == '<')
+        {
+            is_found = true;
+            result += "<"+con + payload.substr(index+1, (found - index-2)) + ";ep=" + ep;
+        }
+        
+        index = found+1;
+        found = payload.find_first_of(",", found+1);
+    }
+    
+    if ( index != std::string::npos && payload[index] == '<' )
+    {
+        is_found = true;
+        result += "<"+con + payload.substr(index+1) + ";ep=" + ep;
+    }
+
+    return is_found;
+    
+}
+
 void CoAPResource::find_ep_result(std::string &ep_result)
 {
     CoAPResource::coap_resource_cache_t::iterator e = ep_cache_.begin();
@@ -335,6 +378,7 @@ void CoAPResource::find_ep_result(std::string &ep_result)
         std::string ep = (*e)->get_ep();
         std::string con = (*e)->get_context();
         std::string et = (*e)->get_et();
+        std::string payload = (*e)->get_payload();
 
 
         ACE_DEBUG((LM_DEBUG, "\nd=%s, ep=%s, con=%s\n, et=%s\n",
@@ -348,16 +392,23 @@ void CoAPResource::find_ep_result(std::string &ep_result)
             continue;    
         }
         
-        ep_result += "<"+con+">;ep=\"" + ep +"\"";
+        ep_result += "<"+con+">;ep=" + ep;
         ep_result += ";d=\""+ d +"\"";
         
         if(!et.empty())
         {
-            ep_result += ";et=\""+ et +"\"";
+            ep_result += ";et="+ et;
         }
                 
         ep_result += ",";
 
+        if (!payload.empty())
+        {
+            if (find_sub_resource_from_payload(payload, con, ep, ep_result) == true)
+            {
+                ep_result += ",";
+            }
+        }
     }
     
 }
