@@ -351,7 +351,7 @@ static bool find_sub_resource_from_payload(std::string &payload,
         if (payload[index] == '<')
         {
             is_found = true;
-            result += "<"+con + payload.substr(index+1, (found - index-2)) + ";ep=" + ep;
+            result += "<"+con + payload.substr(index+1, (found - index-2)) + ";ep=" + ep + ",";
         }
         
         index = found+1;
