@@ -380,13 +380,6 @@ void CoAPResource::find_ep_result(std::string &ep_result)
         std::string et = (*e)->get_et();
         std::string payload = (*e)->get_payload();
 
-
-        ACE_DEBUG((LM_DEBUG, "\nd=%s, ep=%s, con=%s\n, et=%s\n",
-                               d.c_str(),
-                               ep.c_str(),
-                               con.c_str(),
-                               et.c_str()));
-
         if( d.empty() || ep.empty() || con.empty())
         {
             continue;    
