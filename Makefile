@@ -50,6 +50,18 @@ SOURCE_FILES += $(SOURCE_DIR)/CoAP_RD_Lookup_D_Resource.cpp
 SOURCE_FILES += $(SOURCE_DIR)/CoAP_RD_Lookup_EP_Resource.cpp
 SOURCE_FILES += $(SOURCE_DIR)/CoAP_RD_Lookup_RES_Resource.cpp
 SOURCE_FILES += $(SOURCE_DIR)/FW_Proxy_Service.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Serialport_Service.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Serialport_Command.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Service.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Serialport_Parser.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Network.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Node.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Coordination.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Request.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Frame_Router.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Node_Cache.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Device.cpp
+
 
 #deinfe targetes
 .PHONY: all
