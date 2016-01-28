@@ -61,7 +61,7 @@ public:
     
 
 
-private:
+//private:
 
     struct coap_context_t *coap_ctx_;
     ACE_Thread_Mutex *coap_mutex_;

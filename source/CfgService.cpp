@@ -16,11 +16,11 @@ void CfgService::Default()
     mcast_addr_ = "ff05::fd";
     mcast_addr_port_ = 5683;
     svc_addr_ = "::";
-    svc_addr_port_ = 5683;
+    svc_addr_port_ = 6683;
     proxy_addr_ = "::";
-    proxy_addr_port_ = 5683;
+    proxy_addr_port_ = 7683;
     rd_addr_ = "::";
-    rd_addr_port_ = 5683;
+    rd_addr_port_ = 8683;
 
     enable_proxy_ = true;
     enable_rd_ = true;

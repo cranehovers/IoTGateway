@@ -47,7 +47,8 @@ public:
         Sended,
     }SerialPortState;
 
-    static ZigbeeSerialportService *instance();
+    static ZigbeeSerialportService *instance();    
+    static ZigbeeSerialportService *instance_;
     
     ZigbeeSerialportService(CfgService *conf, NetService *net);
     ~ZigbeeSerialportService();
@@ -76,7 +77,6 @@ private:
     void send_req(unsigned char *buf, unsigned int len);
     void get_response();
 
-    static ZigbeeSerialportService *instance_;
     ACE_TTY_IO *io_svc_;
     CfgService *conf_;
     NetService *net_;

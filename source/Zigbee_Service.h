@@ -11,6 +11,7 @@ class CfgService;
 class NetService;
 class ZigbeeSerialportService;
 class ZigbeeNetwork;
+class ZigbeeCoAPService;
 
 class ZigbeeService
 {
@@ -28,6 +29,7 @@ private:
     NetService *net_;
     ZigbeeSerialportService *serialport_;
     ZigbeeNetwork *network_;
+    ZigbeeCoAPService *coap_svc_;
 };
 
 

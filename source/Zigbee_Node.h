@@ -96,6 +96,7 @@ protected:
         unsigned char get_ep_count();        
         unsigned char *get_child_list();
         unsigned char get_child_count();
+        void create_coap_resource(unsigned char ep, NodeSimpleDesc *desc);
 
 private:
 

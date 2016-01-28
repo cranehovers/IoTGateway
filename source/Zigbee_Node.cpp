@@ -4,6 +4,8 @@
 
 #include "Zigbee_Node.h"
 #include "Zigbee_Node_Cache.h"
+#include "Zigbee_CoAP_Service.h"
+
 
 bool ZigbeeNodeKey::compare_by_short_addr(unsigned char short_addr[2])
 {
@@ -121,6 +123,13 @@ unsigned char ZigbeeNode::get_child_count()
 void ZigbeeNode::set_ep_simple_desc(unsigned char ep, NodeSimpleDesc *desc)
 {
     ep_simple_desc_.insert(std::pair<unsigned char,NodeSimpleDesc* >(ep, desc));
+
+    create_coap_resource(ep, desc);
+}
+
+void ZigbeeNode::create_coap_resource(unsigned char ep, NodeSimpleDesc *desc)
+{
+    ZigbeeCoAPService::instance()->create_resource_by_zigbeenode(ep, desc, this);
 }
 
 
