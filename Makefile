@@ -61,6 +61,8 @@ SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Request.cpp
 SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Frame_Router.cpp
 SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Node_Cache.cpp
 SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Device.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_CoAP_Service.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_CoAP_Resource.cpp
 
 
 #deinfe targetes
