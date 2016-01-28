@@ -23,6 +23,13 @@
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_unistd.h>
 #include <ace/os_include/os_netdb.h>
+#include <ace/DEV_Addr.h>
+#include <ace/DEV_Connector.h>
+#include <ace/TTY_IO.h>
+#include "ace/Message_Queue.h"
+#include <ace/Synch.h>
+
+
 
 
 #endif //__CONFIG_H__

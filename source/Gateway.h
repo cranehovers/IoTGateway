@@ -12,6 +12,7 @@ class CfgService;
 class NetService;
 class RDService;
 class FWProxyService;
+class ZigbeeService;
 
 class Gateway
 {
@@ -28,6 +29,7 @@ private:
     NetService *svc_net_;
     RDService  *svc_rd_;
     FWProxyService *svc_proxy_;
+    ZigbeeService *svc_zigbee_;
     
 };
 

@@ -31,6 +31,10 @@ public:
     bool enable_proxy_;
     bool enable_rd_;    
     int coap_debug_level_;
+    
+    ACE_TString serial_port_;
+    int baudrate_;
+    bool enable_zigbee_;
 
 private:
 

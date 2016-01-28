@@ -27,6 +27,11 @@ void CfgService::Default()
 
     cfg_file_ = "gateway.conf";
     coap_debug_level_ = 3;
+    
+    baudrate_ = 38400;
+    serial_port_ = "/dev/ttyUSB0";
+    enable_zigbee_ = false;
+    
 }
 
 CfgService::~CfgService()
@@ -117,6 +122,11 @@ int CfgService::Init(const char* cfile_name)
     GetValue("enable_proxy", enable_proxy_);
     GetValue("enable_rd", enable_rd_);
     GetValue("coap_debug", coap_debug_level_);
+    
+    GetValue("serial_port", serial_port_);
+    GetValue("bautrate", baudrate_);
+    GetValue("enable_zigbee", enable_zigbee_);
+    
     
     return 0;
 }

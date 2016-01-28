@@ -8,6 +8,9 @@
 #include "NET_Service.h"
 #include "RD_Service.h"
 #include "FW_Proxy_Service.h"
+#include "Zigbee_Serialport_Service.h"
+#include "Zigbee_Service.h"
+
 
 int Gateway::Init()
 {
@@ -33,7 +36,6 @@ int Gateway::Init()
         return -1;
     }
 
-
     if ((svc_rd_ = new RDService(svc_conf_, svc_net_)) == 0)
     {
         return -1;
@@ -54,6 +56,16 @@ int Gateway::Init()
         return -1;
     }
 
+    if ((svc_zigbee_ = new ZigbeeService(svc_conf_, svc_net_)) == 0)
+    {
+        return -1;
+    }
+
+    if (svc_zigbee_->Init() < 0)
+    {
+        return -1;
+    }
+    
     return 0;
 
 }
@@ -73,6 +85,7 @@ int Gateway::Start()
 int Gateway::Stop()
 {
     // FIXME-be careful, the net serice must first to be closed.
+    svc_zigbee_->Close();
     svc_rd_->Close();
     svc_net_->Close();
     svc_conf_->Close();
@@ -95,6 +108,12 @@ int Gateway::Close()
     {
         delete svc_rd_;
         svc_rd_ = 0;
+    }
+
+    if (svc_zigbee_)
+    {
+        delete svc_zigbee_;
+        svc_zigbee_ = 0;
     }
 
     if (svc_net_ )
