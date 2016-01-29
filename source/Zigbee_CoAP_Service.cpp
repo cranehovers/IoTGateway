@@ -237,7 +237,6 @@ create_token(str &token)
   token.length = strlen((char *)token.s);
 }
 
-
 static coap_pdu_t *
 coap_new_request(coap_context_t *ctx, unsigned char m, coap_list_t *&options, std::string &payload) 
 {

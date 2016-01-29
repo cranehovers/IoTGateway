@@ -9,7 +9,7 @@
 
 ZigbeeDevice::ZigbeeDevice()
 {
-    set_node_type(Coordination);
+    set_node_type(Device);
 }
 
 ZigbeeDevice::~ZigbeeDevice()

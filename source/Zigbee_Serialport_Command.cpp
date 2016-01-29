@@ -152,4 +152,48 @@ ZigbeeSerialportCommand *ZigbeeSerialportCommand::create_EP_SIMPLE_DESC_cmd(unsi
 
 }
                                                                                                           
+ZigbeeSerialportCommand *ZigbeeSerialportCommand::create_AF_DATA_REQ_cmd(unsigned char dst_short_addr[2],
+                                                     unsigned char dst_ep,
+                                                     unsigned char src_ep,
+                                                     unsigned char cluster_id[2],
+                                                     unsigned char data_len,
+                                                     unsigned char *data_buf
+                                                     )
+{
+    unsigned char tmp_buf[0xff];
+    unsigned char i = 0;
+
+    tmp_buf[i++] = MT_UART_SOF;
+    tmp_buf[i++] = 0; // must set the length later again
+    tmp_buf[i++] = 0x24;
+    tmp_buf[i++] = 0x01;
+    tmp_buf[i++] = dst_short_addr[0];
+    tmp_buf[i++] = dst_short_addr[1];
+    tmp_buf[i++] = dst_ep;
+    tmp_buf[i++] = src_ep;
+    tmp_buf[i++] = cluster_id[0];
+    tmp_buf[i++] = cluster_id[1];
+    tmp_buf[i++] = 0;
+    tmp_buf[i++] = 0;
+    tmp_buf[i++] = 0;
+    tmp_buf[i++] = data_len;
+
+    ACE_OS::memcpy(&tmp_buf[i], data_buf, data_len);
+
+    i += data_len;
+
+    tmp_buf[1] = (i-4);
+    tmp_buf[i] = calc_xor(&(tmp_buf[1]), (i-1));
+
+    ZigbeeSerialportCommand *cmd = new ZigbeeSerialportCommand();
+    
+    cmd->command_size = i+1;
+    cmd->command = new unsigned char[cmd->command_size];
+    
+    ACE_OS::memcpy(cmd->command, tmp_buf, cmd->command_size);
+
+    return cmd;
+
+
+}
 

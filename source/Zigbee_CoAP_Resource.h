@@ -27,6 +27,8 @@ public:
     virtual void* Create();    
     virtual void handler_get(CoAPCallback &callback);
     virtual void handler_put(CoAPCallback &callback);
+    virtual void do_on_off_cmd(unsigned char id);
+    virtual void do_identify(unsigned char id, unsigned short time_value);
 
 private:
 

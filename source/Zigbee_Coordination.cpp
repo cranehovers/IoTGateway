@@ -46,6 +46,7 @@ void ZigbeeCoordination::create_device()
         ZigbeeDevice *device = new ZigbeeDevice();
 
         device->set_short_addr(short_addr);
+        device->set_bind_ep(get_bind_ep());  
         device->set();
 
         child_list_.push_back(device);

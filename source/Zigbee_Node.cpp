@@ -25,6 +25,7 @@ ZigbeeNode::ZigbeeNode()
     child_count_ = 0;
     ep_list_ = 0;
     ep_count_ = 0;
+    bind_ep_ = 0;
 }
 
 ZigbeeNode::~ZigbeeNode()
@@ -63,6 +64,11 @@ void ZigbeeNode::set_node_type(NODE_TYPE type)
     node_type_ = type;
 }
 
+ZigbeeNode::NODE_TYPE ZigbeeNode::get_node_type()
+{
+    return node_type_;
+}
+
 void ZigbeeNode::set()
 {
     gZigbeeNodeCache::instance()->add(key_, this);
@@ -77,7 +83,7 @@ void ZigbeeNode::set_child(unsigned char* child_list, unsigned char count)
         
         ACE_OS::memcpy(child_list_, child_list, count);
 
-        create_device();
+        //create_device();
     }
     //FIXME:todo exception
     else
@@ -120,11 +126,27 @@ unsigned char ZigbeeNode::get_child_count()
     return child_count_;
 }
 
+void ZigbeeNode::set_bind_ep(unsigned char ep)
+{
+    bind_ep_ = ep;
+}
+
+unsigned char ZigbeeNode::get_bind_ep()
+{
+    return bind_ep_;
+}
+
 void ZigbeeNode::set_ep_simple_desc(unsigned char ep, NodeSimpleDesc *desc)
 {
     ep_simple_desc_.insert(std::pair<unsigned char,NodeSimpleDesc* >(ep, desc));
 
     create_coap_resource(ep, desc);
+
+    if(get_node_type() == Coordination)
+    {
+        set_bind_ep(ep);
+        create_device();
+    }
 }
 
 void ZigbeeNode::create_coap_resource(unsigned char ep, NodeSimpleDesc *desc)

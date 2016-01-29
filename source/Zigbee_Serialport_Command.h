@@ -25,6 +25,14 @@ public:
                                                           unsigned char req_type,
                                                           unsigned char start_indx);
                                                           
+    static ZigbeeSerialportCommand *create_AF_DATA_REQ_cmd(unsigned char dst_short_addr[2],
+                                                           unsigned char dst_ep,
+                                                           unsigned char src_ep,
+                                                           unsigned char cluster_id[2],
+                                                           unsigned char data_len,
+                                                           unsigned char *data_buf
+                                                           );
+                                                          
     void free();
     unsigned char *base();
     unsigned int size();

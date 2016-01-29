@@ -6,8 +6,31 @@
 #include "CoAP_Wrapper.h"
 #include "CoAP_Resource.h"
 #include "Zigbee_Node.h"
-#include "coap.h"
+#include "Zigbee_Serialport_Command.h"
+#include "Zigbee_Request.h"
 
+#include "coap.h"
+#include "cJSON.h"
+
+
+// ZCL header - frame control field
+typedef struct
+{
+  unsigned int type:2;
+  unsigned int manuSpecific:1;
+  unsigned int direction:1;
+  unsigned int disableDefaultRsp:1;
+  unsigned int reserved:3;
+} zclFrameControl_t;
+
+// ZCL header
+typedef struct
+{
+  zclFrameControl_t fc;
+  unsigned short manuCode;
+  unsigned char  transSeqNum;
+  unsigned char  commandID;
+} zclFrameHdr_t;
 
 typedef struct device_id_name_table
 { 
@@ -56,6 +79,35 @@ static std::string find_device_type_by_id(unsigned char device[2])
     }
     
     return "unknow";
+}
+
+#define HI_UINT16(a) (((a) >> 8) & 0xFF)
+#define LO_UINT16(a) ((a) & 0xFF)
+
+static unsigned char *zclBuildHdr( zclFrameHdr_t *hdr, unsigned char *pData )
+{
+  // Build the Frame Control byte
+  *pData = hdr->fc.type;
+  *pData |= hdr->fc.manuSpecific << 2;
+  *pData |= hdr->fc.direction << 3;
+  *pData |= hdr->fc.disableDefaultRsp << 4;
+  pData++;  // move past the frame control field
+
+  // Add the manfacturer code
+  if ( hdr->fc.manuSpecific )
+  {
+    *pData++ = LO_UINT16( hdr->manuCode );
+    *pData++ = HI_UINT16( hdr->manuCode );
+  }
+
+  // Add the Transaction Sequence Number
+  *pData++ = hdr->transSeqNum;
+  
+  // Add the Cluster's command ID
+  *pData++ = hdr->commandID;
+
+  // Should point to the frame payload
+  return ( pData );
 }
 
 
@@ -135,14 +187,164 @@ void* ZigbeeCoapResource::Create()
 
 void ZigbeeCoapResource::handler_get(CoAPCallback &callback)
 {
-    ACE_DEBUG((LM_DEBUG, "call %d\n", this->zigbee_ep_));
+    std::string payload;
+
+    
+    
     CoAPResource::handler_get(callback);
 }
 
 void ZigbeeCoapResource::handler_put(CoAPCallback &callback)
 {
-    ACE_DEBUG((LM_DEBUG, "call %d\n", this->zigbee_ep_));
+    std::string payload;
+    bool check_flag = false;
 
-    CoAPResource::handler_get(callback);
+    get_wrapper()->get_payload(callback, payload);
+
+    if (payload.empty())
+    {
+        ACE_DEBUG((LM_DEBUG, "the payload is empty\n"));
+    }
+    else // json formate, 
+    {
+        cJSON *result = cJSON_Parse(payload.c_str());
+
+        if (result == 0 )
+        {
+            ACE_DEBUG((LM_DEBUG, "failed to parse json string(%s)\n",payload.c_str()));
+        }
+        else //get cluster id
+        {
+            cJSON *cluster_id = cJSON_GetObjectItem(result, "cluster_id");
+
+            if (cluster_id != 0) // get command id
+            {
+                cJSON *command_id = cJSON_GetObjectItem(result, "command_id");
+
+                if (command_id != 0)
+                {
+                    if (cluster_id->type == cJSON_Number &&
+                        command_id->type == cJSON_Number)
+                    {
+                        unsigned short clusterid = cluster_id->valueint;
+                        unsigned cmdid = command_id->valueint;
+
+                        if (clusterid == 0x06 &&
+                            cmdid >=0 && cmdid <=2) // OnOff cluster
+                        {
+                            check_flag = true;
+                            do_on_off_cmd(cmdid);
+                        }
+                        else if (clusterid == 0x03 &&
+                            cmdid>=0 && cmdid < 0x01) // identify cluster
+                        {
+                            cJSON *attributes = cJSON_GetObjectItem(result, "attributes");
+
+                            if (attributes != 0)
+                            {
+                                  cJSON *identify_time = cJSON_GetObjectItem(attributes, "IdentifyTime");
+
+                                  if (identify_time != 0)
+                                  {
+                                        if (identify_time->type == cJSON_Number)
+                                        {
+                                            unsigned int time_value = identify_time->valueint;
+
+                                            check_flag = true;                 
+                                            do_identify(cmdid, time_value);
+                                        }
+                                  }
+                            }
+                             
+                        }
+                    }
+                }
+             }
+
+             cJSON_Delete(result);
+        }
+    }
+
+    if (!check_flag)
+    {
+        get_wrapper()->bad_request(callback);
+    }
+    else
+    {
+        get_wrapper()->ok_request(callback);
+    }
+    
 }
 
+void ZigbeeCoapResource::do_on_off_cmd(unsigned char id)
+{
+    zclFrameHdr_t zcl_hdr;
+    unsigned char data_buf[0xff];
+    unsigned char *zcl_data_buf = 0;
+    unsigned char data_buf_len = 0;
+    
+    ACE_OS::memset(&zcl_hdr, 0, sizeof(zclFrameHdr_t));
+
+    zcl_hdr.fc.type = 0x01;
+    zcl_hdr.commandID = id;
+    zcl_hdr.transSeqNum = 0;
+
+    zcl_data_buf = zclBuildHdr(&zcl_hdr, data_buf);
+    data_buf_len = zcl_data_buf - data_buf;
+
+    if (zigbee_node_)
+    {
+        unsigned char cluster_id[2] = {0x06,0x00};
+        
+        ZigbeeSerialportCommand * c =
+        ZigbeeSerialportCommand::create_AF_DATA_REQ_cmd(zigbee_node_->get_short_addr(),
+                                                        zigbee_ep_,
+                                                        zigbee_node_->get_bind_ep(),
+                                                        cluster_id,
+                                                        data_buf_len,
+                                                        data_buf
+                                                        );
+        ZigbeeRequest *req = new ZigbeeRequest();
+        req->set_cmd(c);
+        req->get();
+    }
+    
+}
+
+void ZigbeeCoapResource::do_identify(unsigned char id, unsigned short time_value)
+{
+    zclFrameHdr_t zcl_hdr;
+    unsigned char data_buf[0xff];
+    unsigned char *zcl_data_buf = 0;
+    unsigned char data_buf_len = 0;
+    
+    ACE_OS::memset(&zcl_hdr, 0, sizeof(zclFrameHdr_t));
+
+    zcl_hdr.fc.type = 0x01;
+    zcl_hdr.commandID = id;
+    zcl_hdr.transSeqNum = 0;
+
+    zcl_data_buf = zclBuildHdr(&zcl_hdr, data_buf);
+    data_buf_len = zcl_data_buf - data_buf;
+
+    zcl_data_buf[0] = LO_UINT16(time_value);
+    zcl_data_buf[1] = HI_UINT16(time_value);
+    data_buf_len  += 2;
+    
+    if (zigbee_node_)
+    {
+        unsigned char cluster_id[2] = {0x03,0x00};
+        
+        ZigbeeSerialportCommand * c =
+        ZigbeeSerialportCommand::create_AF_DATA_REQ_cmd(zigbee_node_->get_short_addr(),
+                                                        zigbee_ep_,
+                                                        zigbee_node_->get_bind_ep(),
+                                                        cluster_id,
+                                                        data_buf_len,
+                                                        data_buf
+                                                        );
+        ZigbeeRequest *req = new ZigbeeRequest();
+        req->set_cmd(c);
+        req->get();
+    }
+}

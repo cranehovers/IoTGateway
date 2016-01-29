@@ -78,8 +78,12 @@ public:
 
      unsigned char *get_short_addr();
      unsigned char *get_ieee_addr();
-
+     void set_bind_ep(unsigned char ep);
+     unsigned char get_bind_ep();
+     
      void set_node_type(NODE_TYPE type);
+     NODE_TYPE get_node_type();
+     
 
      virtual void get_self_basic_info(){};
      virtual void get_self_ep_count(){};
@@ -102,6 +106,7 @@ private:
 
     ZigbeeNodeKey *key_;
     NODE_TYPE node_type_;
+    unsigned char bind_ep_;
     unsigned char *child_list_;
     unsigned char child_count_;
     unsigned char *ep_list_;
