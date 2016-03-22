@@ -33,14 +33,14 @@ typedef struct
 } zclFrameHdr_t;
 
 typedef struct device_id_name_table
-{ 
+{
     unsigned char id0;
     unsigned char id1;
     const char *name;
 }device_id_name_table;
 
 static device_id_name_table zigbee_device_name_table[0xff] =
-{ 
+{
     {0x00,0x00,"OnOff Switch"},
     {0x00,0x01,"Level Control Switch" },
     {0x00,0x03,"OnOff Output" },
@@ -77,7 +77,7 @@ static std::string find_device_type_by_id(unsigned char device[2])
 
            return std::string(zigbee_device_name_table[i].name);
     }
-    
+
     return "unknow";
 }
 
@@ -102,7 +102,7 @@ static unsigned char *zclBuildHdr( zclFrameHdr_t *hdr, unsigned char *pData )
 
   // Add the Transaction Sequence Number
   *pData++ = hdr->transSeqNum;
-  
+
   // Add the Cluster's command ID
   *pData++ = hdr->commandID;
 
@@ -138,7 +138,7 @@ void ZigbeeCoapResource::set_zigbee_desc(NodeSimpleDesc *desc)
 
 static void addr_to_string(unsigned char ieee_addr[8], std::string &str_addr)
 {
-  
+
     char buf[0xff];
     ACE_OS::sprintf(buf, "%02x%02x%02x%02x%02x%02x%02x%02x",ieee_addr[0],
                                                           ieee_addr[1],
@@ -149,7 +149,7 @@ static void addr_to_string(unsigned char ieee_addr[8], std::string &str_addr)
                                                           ieee_addr[6],
                                                           ieee_addr[7]
                                                           );
-    str_addr = buf;        
+    str_addr = buf;
 }
 
 void* ZigbeeCoapResource::Create()
@@ -158,12 +158,12 @@ void* ZigbeeCoapResource::Create()
     addr_to_string(zigbee_node_->get_ieee_addr(), str_addr);
 
     char buf[0xff];
-    
+
     ACE_OS::sprintf(buf, "%s/%x", str_addr.c_str(), zigbee_ep_);
     std::string resource_uri = buf;
     std::string resource_rt = find_device_type_by_id(zigbee_desc_->deviceid_);
     ACE_OS::sprintf(buf, "%s-%x", str_addr.c_str(), zigbee_ep_);
-    std::string resource_ep = buf;    
+    std::string resource_ep = buf;
     ACE_OS::sprintf(buf, "</%s>;ct=41;rt=\"%s\";if=\"sensor\"", resource_uri.c_str(),resource_rt.c_str());
     std::string payload = buf;
 
@@ -189,8 +189,6 @@ void ZigbeeCoapResource::handler_get(CoAPCallback &callback)
 {
     std::string payload;
 
-    
-    
     CoAPResource::handler_get(callback);
 }
 
@@ -205,7 +203,7 @@ void ZigbeeCoapResource::handler_put(CoAPCallback &callback)
     {
         ACE_DEBUG((LM_DEBUG, "the payload is empty\n"));
     }
-    else // json formate, 
+    else // json formate,
     {
         cJSON *result = cJSON_Parse(payload.c_str());
 
@@ -250,12 +248,12 @@ void ZigbeeCoapResource::handler_put(CoAPCallback &callback)
                                         {
                                             unsigned int time_value = identify_time->valueint;
 
-                                            check_flag = true;                 
+                                            check_flag = true;
                                             do_identify(cmdid, time_value);
                                         }
                                   }
                             }
-                             
+
                         }
                     }
                 }
@@ -268,12 +266,12 @@ void ZigbeeCoapResource::handler_put(CoAPCallback &callback)
     if (!check_flag)
     {
         get_wrapper()->bad_request(callback);
-    }
+}
     else
     {
         get_wrapper()->ok_request(callback);
     }
-    
+
 }
 
 void ZigbeeCoapResource::do_on_off_cmd(unsigned char id)
@@ -282,7 +280,7 @@ void ZigbeeCoapResource::do_on_off_cmd(unsigned char id)
     unsigned char data_buf[0xff];
     unsigned char *zcl_data_buf = 0;
     unsigned char data_buf_len = 0;
-    
+
     ACE_OS::memset(&zcl_hdr, 0, sizeof(zclFrameHdr_t));
 
     zcl_hdr.fc.type = 0x01;
@@ -295,7 +293,7 @@ void ZigbeeCoapResource::do_on_off_cmd(unsigned char id)
     if (zigbee_node_)
     {
         unsigned char cluster_id[2] = {0x06,0x00};
-        
+
         ZigbeeSerialportCommand * c =
         ZigbeeSerialportCommand::create_AF_DATA_REQ_cmd(zigbee_node_->get_short_addr(),
                                                         zigbee_ep_,
@@ -308,7 +306,7 @@ void ZigbeeCoapResource::do_on_off_cmd(unsigned char id)
         req->set_cmd(c);
         req->get();
     }
-    
+
 }
 
 void ZigbeeCoapResource::do_identify(unsigned char id, unsigned short time_value)
@@ -317,7 +315,7 @@ void ZigbeeCoapResource::do_identify(unsigned char id, unsigned short time_value
     unsigned char data_buf[0xff];
     unsigned char *zcl_data_buf = 0;
     unsigned char data_buf_len = 0;
-    
+
     ACE_OS::memset(&zcl_hdr, 0, sizeof(zclFrameHdr_t));
 
     zcl_hdr.fc.type = 0x01;
@@ -330,11 +328,11 @@ void ZigbeeCoapResource::do_identify(unsigned char id, unsigned short time_value
     zcl_data_buf[0] = LO_UINT16(time_value);
     zcl_data_buf[1] = HI_UINT16(time_value);
     data_buf_len  += 2;
-    
+
     if (zigbee_node_)
     {
         unsigned char cluster_id[2] = {0x03,0x00};
-        
+
         ZigbeeSerialportCommand * c =
         ZigbeeSerialportCommand::create_AF_DATA_REQ_cmd(zigbee_node_->get_short_addr(),
                                                         zigbee_ep_,
