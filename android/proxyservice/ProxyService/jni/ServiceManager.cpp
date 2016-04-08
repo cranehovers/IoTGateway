@@ -3,15 +3,28 @@
  */
 
 #include "ServiceManager.h"
+#include "ServiceCfg.h"
+
 
 ServiceManager *ServiceManager::instance_ = 0;
 
 ServiceManager::ServiceManager()
+:service_cfg_(0)
 {
+    if (service_cfg_ == 0)
+    {
+
+        service_cfg_ = new ServiceCfg();
+    }
 }
 
 ServiceManager::~ServiceManager()
 {
+    if (service_cfg_ != 0)
+    {
+        delete service_cfg_;
+        service_cfg_ = 0;
+    }
 }
 
 ServiceManager *ServiceManager::instance()
@@ -31,7 +44,7 @@ ServiceManager *ServiceManager::instance()
 
 int ServiceManager::loadService()
 {
-	return 0;
+	return service_cfg_->loadService();
 }
 
 int ServiceManager::startService()

@@ -5,6 +5,8 @@
 #ifndef __SERVICE_MANAGER_H__
 #define __SERVICE_MANAGER_H__
 
+class ServiceCfg;
+
 class ServiceManager
 {
 public:
@@ -20,6 +22,7 @@ private:
 	int loadService();
 
 	static ServiceManager *instance_;
+	ServiceCfg *service_cfg_;
 };
 
 
