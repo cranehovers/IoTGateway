@@ -38,6 +38,8 @@ APP := libproxyservice.so
 SOURCE_FILES := $(SOURCE_DIR)/ProxyService.cpp
 SOURCE_FILES += $(SOURCE_DIR)/ServiceCfg.cpp
 SOURCE_FILES += $(SOURCE_DIR)/ServiceManager.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Service.cpp
+
 
 #deinfe targetes
 .PHONY: all

@@ -5,7 +5,10 @@
 #ifndef __SERVICE_MANAGER_H__
 #define __SERVICE_MANAGER_H__
 
+#include <vector>
+
 class ServiceCfg;
+class Service;
 
 class ServiceManager
 {
@@ -20,9 +23,11 @@ public:
 
 private:
 	int loadService();
+	int createService();
 
 	static ServiceManager *instance_;
 	ServiceCfg *service_cfg_;
+	std::vector<Service*> services_;
 };
 
 

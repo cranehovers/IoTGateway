@@ -1,5 +1,10 @@
 #include "ServiceCfg.h"
 
+/*
+* the macros below must modified later by business
+*
+*/
+
 #define IOT_GATEWAY_SHARE_LIB "libiotgateway.so"
 #define IOT_CLOUD_CLIENT_SHARE_LIB "libiotcloudclient.so"
 
@@ -23,7 +28,7 @@ int ServiceCfg::loadService()
     * now, only wrote into code
     */
     service_list_.push_back(IOT_GATEWAY_SHARE_LIB);
-    service_list_.push_back(IOT_CLOUD_CLIENT_SHARE_LIB);
+    //service_list_.push_back(IOT_CLOUD_CLIENT_SHARE_LIB);
 
     return 0;
 }
