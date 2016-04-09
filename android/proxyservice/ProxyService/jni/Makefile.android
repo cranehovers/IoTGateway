@@ -27,6 +27,7 @@ CFLAGS += -I$(REF_DIR)
 
 LDFLAGS += -L$(REF_DIR)/ace/
 
+LIBS += -llog
 LIBS += -lACE
 LIBS += -ldl
 LIBS += -lsupc++

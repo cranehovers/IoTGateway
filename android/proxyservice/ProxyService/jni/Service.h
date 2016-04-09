@@ -11,6 +11,8 @@
 #include <ace/Thread_Manager.h>
 #include <ace/Synch.h>
 
+#include "ServiceLog.h"
+
 
 class Service : public ACE_Task_Base
 {
@@ -22,6 +24,9 @@ public:
     int close();
     int start();
     int stop();
+    int init();
+    void setPrintOutput(print_log printlog);
+
 
     virtual int svc (void);
 
@@ -32,6 +37,8 @@ private:
     void *service_handle_;
     void *service_start_;
     void *service_stop_;
+    void *service_init_;
+    void *service_print_;
 };
 
 #endif // __SERVICE_H__

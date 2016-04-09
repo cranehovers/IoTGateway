@@ -25,7 +25,7 @@ int NetService::Close()
 {
     // break the net service thread,
     // then close the net service
-    
+
     break_netsvc_thread_flag = true;
 
     reactor_.end_reactor_event_loop();
@@ -33,7 +33,7 @@ int NetService::Close()
 
     // wait for net service thread to be exited
     wait();
-    
+
     return 0;
 }
 
@@ -53,23 +53,25 @@ int NetService::Run()
     }
 
     wait();
-    
+
     return 0;
 }
 
 int NetService::svc()
 {
+    init_ace_log();
+
     ACE_DEBUG((LM_DEBUG,
                 "Create Net Service thread\n"));
 
-    int code = 0;    
+    int code = 0;
     reactor_.owner (ACE_OS::thr_self ());
 
     ACE_Time_Value timeout;
     timeout.sec(3);
 
     for (;;)
-    {        
+    {
         code = reactor_.handle_events(timeout);
 
         if (break_netsvc_thread_flag)
@@ -77,7 +79,7 @@ int NetService::svc()
             break;
         }
     }
-            
+
     ACE_DEBUG((LM_DEBUG,
                 "Return from Net Service thread[%d]\n",code));
 

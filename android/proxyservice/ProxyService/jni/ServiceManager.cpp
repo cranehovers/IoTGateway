@@ -5,6 +5,7 @@
 #include "ServiceManager.h"
 #include "ServiceCfg.h"
 #include "Service.h"
+#include "ServiceLog.h"
 
 ServiceManager *ServiceManager::instance_ = 0;
 
@@ -40,12 +41,8 @@ ServiceManager *ServiceManager::instance()
 {
     if (ServiceManager::instance_ == 0)
     {
+        //printOutput("Create ServiceManager");
         ServiceManager::instance_ = new ServiceManager();
-
-        /*
-         * when instance created , then load services from cfg file
-         */
-        ServiceManager::instance_->loadService();
     }
 
     return ServiceManager::instance_;
@@ -54,9 +51,8 @@ ServiceManager *ServiceManager::instance()
 int ServiceManager::loadService()
 {
     service_cfg_->loadService();
-    createService();
 
-    return 0;
+    return createService();
 }
 
 int ServiceManager::createService()
@@ -70,10 +66,43 @@ int ServiceManager::createService()
         Service *svc = new Service();
         services_.push_back(svc);
 
-        svc->load((*e));
+        if (svc->load((*e)) < 0)
+        {
+            //printOutput("create Service failed\n");
+            return -1;
+        }
+    }
+
+    //printOutput("create Service successfully\n");
+
+    return 0;
+}
+
+
+int ServiceManager::initService()
+{
+    std::vector<Service*>::iterator e = services_.begin();
+
+    for (; e != services_.end(); e++)
+    {
+        Service *svc = (*e);
+        svc->init();
     }
 
     return 0;
+}
+
+void ServiceManager::setPrintOutput(print_log printlog)
+{
+    std::vector<Service*>::iterator e = services_.begin();
+
+    for (; e != services_.end(); e++)
+    {
+        Service *svc = (*e);
+        svc->setPrintOutput(printlog);
+    }
+
+    return;
 }
 
 
@@ -102,7 +131,7 @@ int ServiceManager::stopService()
         /*
         *  FIXME: if it need to do close action here ?
         */
-        svc->close();
+        //svc->close();
     }
 
     return 0;
