@@ -13,10 +13,10 @@ typedef int (*EXT_EVENT_HOOK)(void* argv, ACE_Time_Value& value);
 class NetService : public ACE_Task_Base
 {
 public:
-    
+
     NetService();
     ~NetService();
-    
+
     int Init();
     int Start();
     int Close();
@@ -27,9 +27,13 @@ public:
                    ACE_Reactor_Mask mask);
     long schedule_timer(ACE_Event_Handler *event_handler,
                                const void *arg,
-                               const ACE_Time_Value &delay);    
+                               const ACE_Time_Value &delay);
+
+    void remove_handler(ACE_Event_Handler *handler);
+    void cancel_timer(ACE_Event_Handler *handler);
+
     virtual int svc (void);
-    
+
 private:
 
     int Run();
@@ -37,7 +41,7 @@ private:
     CfgService *svc_conf_;
     NetMcastService mcast_svc_;
     ACE_Reactor reactor_;
-    
+
 };
 
 typedef ACE_Singleton<NetService, ACE_Mutex> Net_Service;

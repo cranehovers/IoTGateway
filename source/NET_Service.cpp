@@ -92,6 +92,17 @@ int NetService::RegHandler(ACE_Event_Handler *event_handler,
     return reactor_.register_handler(event_handler, mask);
 }
 
+
+void NetService::remove_handler(ACE_Event_Handler *handler)
+{
+    reactor_.remove_handler(handler,ACE_Event_Handler::READ_MASK);
+}
+
+void NetService::cancel_timer(ACE_Event_Handler *handler)
+{
+    reactor_.cancel_timer(handler);
+}
+
 long NetService::schedule_timer(ACE_Event_Handler *event_handler,
                            const void *arg,
                            const ACE_Time_Value &delay)
