@@ -25,21 +25,22 @@ public:
     ~SerialportTask();
 
     void set_owner(ZigbeeSerialportService *o);
-    
+
     virtual int svc (void);
     void clear();
 
     ZigbeeSerialportService *owner_;
-    unsigned short thread_exit_flag;    
+    unsigned short thread_exit_flag;
     ACE_Message_Queue<ACE_MT_SYNCH> message_queue;
 };
+
 
 class ZigbeeSerialportService :public ACE_Event_Handler
 {
 public:
 
     friend class SerialportTask;
-    
+
     typedef enum SerialPortState
     {
         Idle,
@@ -47,19 +48,19 @@ public:
         Sended,
     }SerialPortState;
 
-    static ZigbeeSerialportService *instance();    
+    static ZigbeeSerialportService *instance();
     static ZigbeeSerialportService *instance_;
-    
+
     ZigbeeSerialportService(CfgService *conf, NetService *net);
     ~ZigbeeSerialportService();
-    
+
     int Init();
     int Close();
-    
+
     virtual int handle_input (ACE_HANDLE fd);
     virtual int handle_timeout (const ACE_Time_Value &tv,
                                 const void *arg);
-    
+
     virtual ACE_HANDLE get_handle (void) const;
 
     int send(ZigbeeRequest *req);
@@ -84,7 +85,7 @@ private:
     ZigbeeSerialportParser *parser_;
     SerialportTask *task_;
     std::vector<ZigbeeNotify*> notify_list_;
-    
+
 };
 
 

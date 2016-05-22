@@ -1,5 +1,5 @@
 /*
-* This file defins zigbee serial port 
+* This file defins zigbee serial port
 */
 
 #include "Zigbee_Serialport_Service.h"
@@ -17,11 +17,11 @@
 #define ZIGBEE_SERIAL_PORT_CMD_GET_RES 0x83
 
 static void dump_(unsigned char *buf, unsigned int len)
-{    
+{
     ACE_DEBUG((LM_DEBUG, ">>>> "));
     for (int i=0; i < len; i++)
         ACE_DEBUG((LM_DEBUG,"%0x ",buf[i]));
-        
+
     ACE_DEBUG((LM_DEBUG, "\n"));
 
 }
@@ -59,11 +59,11 @@ int SerialportTask::svc (void)
 
     ACE_Time_Value last_time = ACE_OS::gettimeofday();
     ACE_Time_Value current_time = ACE_OS::gettimeofday();
-    
+
     while( !thread_exit_flag)
     {
         ACE_Message_Block *b = 0;
-        
+
         if (message_queue.dequeue_head(b) == -1 )
         {
             ACE_DEBUG((LM_DEBUG, "faile get block from queue\n"));
@@ -72,7 +72,7 @@ int SerialportTask::svc (void)
 
         //ACE_DEBUG((LM_DEBUG, "*** get type[%x] size[%d] ****\n", b->msg_type(),
         //message_queue.message_count()));
-        
+
         switch(b->msg_type())
         {
             case ZIGBEE_SERIAL_PORT_CMD_EXIT_THREAD:
@@ -86,9 +86,9 @@ int SerialportTask::svc (void)
                owner_->connecting_serial_port();
             }
             break;
-            
+
             case ZIGBEE_SERIAL_PORT_CMD_SEND_REQ:
-            {                              
+            {
                current_time = ACE_OS::gettimeofday();
 
                // each command cant send togather. when the time expired
@@ -125,13 +125,15 @@ int SerialportTask::svc (void)
             b->release();
         }
     }
-            
+
     ACE_DEBUG((LM_DEBUG,
                 "Return from zigbee serialport Service thread\n"));
 
     return 0;
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
 
 ZigbeeSerialportService *ZigbeeSerialportService::instance_ = 0;
 
@@ -146,7 +148,7 @@ ZigbeeSerialportService *ZigbeeSerialportService::instance()
 }
 
 
-ZigbeeSerialportService::ZigbeeSerialportService(CfgService *conf, 
+ZigbeeSerialportService::ZigbeeSerialportService(CfgService *conf,
                                                  NetService *net)
 :io_svc_(0),
 conf_(conf),
@@ -161,14 +163,13 @@ net_(net)
 
 ZigbeeSerialportService::~ZigbeeSerialportService()
 {
-    Close();
 }
 
 int ZigbeeSerialportService::Init()
-{   
+{
     parser_ = new ZigbeeSerialportParser();
     task_ = new SerialportTask();
-    
+
     task_->set_owner(this);
 
     // active the serial port thread.
@@ -188,10 +189,20 @@ int ZigbeeSerialportService::Close()
 {
     exit_and_wait_thread();
 
+    if (net_)
+    {
+        net_->remove_handler(this);
+        net_->cancel_timer(this);
+    }
+
+    ACE_DEBUG((LM_DEBUG,
+            "***************** Serial port close ********************* \n"));
+
+
     if (io_svc_ != 0)
     {
         io_svc_->close();
-        
+
         delete io_svc_;
         io_svc_ = 0;
     }
@@ -220,15 +231,15 @@ int ZigbeeSerialportService::open_serial_port()
     }
 
     io_svc_ = new ACE_TTY_IO();
-    
+
     ACE_DEV_Connector con;
-    
+
     if (con.connect ((*io_svc_),
                    ACE_DEV_Addr (conf_->serial_port_.c_str())) == -1)
     {
         delete io_svc_;
         io_svc_ = 0;
-        
+
         ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_TEXT ("Failed to open serial port:%p\n"),
                        conf_->serial_port_.c_str()),
@@ -236,7 +247,7 @@ int ZigbeeSerialportService::open_serial_port()
     }
 
     ACE_TTY_IO::Serial_Params serial_port_params;
-    
+
     serial_port_params.baudrate = conf_->baudrate_;
     serial_port_params.xonlim = 0;
     serial_port_params.xofflim = 0;
@@ -259,7 +270,7 @@ int ZigbeeSerialportService::open_serial_port()
     {
         delete io_svc_;
         io_svc_ = 0;
-        
+
         ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_TEXT ("failed to set %p control\n"),
                        conf_->serial_port_.c_str()),
@@ -267,19 +278,19 @@ int ZigbeeSerialportService::open_serial_port()
     }
 
     state_ = Opened;
-    
+
     net_->RegHandler(this, ACE_Event_Handler::READ_MASK);
 
     ACE_DEBUG((LM_DEBUG, "Sucessfully opened serial port:%s\n", conf_->serial_port_.c_str()));
-    
+
 }
 
 int ZigbeeSerialportService::handle_input (ACE_HANDLE fd)
 {
     {
         ACE_Message_Block *b = new ACE_Message_Block();
-        b->msg_type(ZIGBEE_SERIAL_PORT_CMD_GET_RES); 
-        
+        b->msg_type(ZIGBEE_SERIAL_PORT_CMD_GET_RES);
+
         if (task_->message_queue.enqueue_tail(b)== -1 )
         {
             ACE_DEBUG((LM_DEBUG, "faild to input reactor block into queue\n"));
@@ -287,7 +298,7 @@ int ZigbeeSerialportService::handle_input (ACE_HANDLE fd)
 
         reactor()->suspend_handler(this);
     }
-    
+
     return 0;
 }
 
@@ -298,12 +309,16 @@ int ZigbeeSerialportService::handle_timeout (const ACE_Time_Value &tv,
     {
         connect_to_serialport();
     }
-    
+
     return 0;
 }
 
 ACE_HANDLE ZigbeeSerialportService::get_handle (void) const
 {
+
+    ACE_DEBUG((LM_DEBUG,
+           "call ZigbeeSerialportService get_handle\n"));
+
     if (io_svc_)
     {
         return io_svc_->get_handle();
@@ -317,14 +332,14 @@ int ZigbeeSerialportService::send(ZigbeeRequest  *req)
     {
         ACE_Message_Block *b = new ACE_Message_Block(req->size());
         ACE_OS::memcpy(b->base(), req->base(), req->size());
-        
-        b->msg_type(ZIGBEE_SERIAL_PORT_CMD_SEND_REQ);        
+
+        b->msg_type(ZIGBEE_SERIAL_PORT_CMD_SEND_REQ);
 
         if (task_->message_queue.enqueue_tail(b) == -1 )
-        {            
+        {
             ACE_DEBUG((LM_DEBUG, "faild to input node block into queue\n"));
         }
-        
+
         delete req;
     }
 
@@ -356,7 +371,7 @@ void ZigbeeSerialportService::connecting_serial_port()
         if (net_)
         {
             ACE_Time_Value timeout;
-            timeout.sec(5);            
+            timeout.sec(5);
             net_->schedule_timer(this, 0, timeout);
         }
     }
@@ -388,10 +403,10 @@ void ZigbeeSerialportService::notify(unsigned short n)
 }
 
 void ZigbeeSerialportService::send_req(unsigned char *buf, unsigned int len)
-{   
+{
     dump_(buf, len);
     if (state_ == Opened)
-    {     
+    {
         if ( io_svc_ && io_svc_->send(buf, len) == -1)
         {
             ACE_DEBUG((LM_DEBUG,"failed to send command by serial port\n"));
@@ -404,12 +419,12 @@ void ZigbeeSerialportService::send_req(unsigned char *buf, unsigned int len)
 void ZigbeeSerialportService::get_response()
 {
     if (io_svc_)
-    {   
+    {
         while (1)
         {
             unsigned char data[0xff];
             ACE_OS::memset(data, 0, 0xff);
-            
+
             int n = io_svc_->recv(data, 0xff);
 
              // exception, FIXME: to handle this condition.
@@ -427,7 +442,7 @@ void ZigbeeSerialportService::get_response()
             {
                 ZigbeeSerialportCommand *cmd;
                 ZigbeeResponse *response;
-                
+
                 parser_->add_data(data, n);
 
                 while ((cmd = parser_->get_frame()) != 0)

@@ -12,6 +12,7 @@ class NetService;
 class ZigbeeSerialportService;
 class ZigbeeNetwork;
 class ZigbeeCoAPService;
+class SerialPortMonitor;
 
 class ZigbeeService
 {
@@ -22,7 +23,10 @@ public:
 
     int Init();
     int Close();
-    
+
+    void serialport_plugin();
+    void serialport_unplugin();
+
 private:
 
     CfgService *conf_;
@@ -30,6 +34,7 @@ private:
     ZigbeeSerialportService *serialport_;
     ZigbeeNetwork *network_;
     ZigbeeCoAPService *coap_svc_;
+    SerialPortMonitor *serial_port_monitor_;
 };
 
 
