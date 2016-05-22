@@ -20,7 +20,7 @@ ZigbeeCoAPService *ZigbeeCoAPService::instance()
     {
         return ZigbeeCoAPService::instance_;
     }
-    
+
     return 0;
 }
 
@@ -33,21 +33,21 @@ net_(net)
 }
 
 ZigbeeCoAPService::~ZigbeeCoAPService()
-{   
+{
 }
 
 int ZigbeeCoAPService::Init()
 {
     ACE_Time_Value timeout;
     timeout.sec(5);
-    
+
     if ((coap_wrapper_ = new CoAPWrapper()) == 0)
     {
         ACE_DEBUG((LM_DEBUG, "Failed to allocate CoAPWrapper in ZigbeeCoAPService\n"));
         return -1;
     }
 
-    if (coap_wrapper_->Create(conf_->svc_addr_, 
+    if (coap_wrapper_->Create(conf_->svc_addr_,
                               conf_->svc_addr_port_,
                               conf_->coap_debug_level_
                               ) < 0)
@@ -59,17 +59,24 @@ int ZigbeeCoAPService::Init()
 
     net_->RegHandler(this, ACE_Event_Handler::READ_MASK);
     net_->schedule_timer(this, 0, timeout);
-    
+
     return 0;
 }
 
 int ZigbeeCoAPService::Close()
 {
+    if (net_)
+    {
+        net_->remove_handler(this);
+        net_->cancel_timer(this);
+    }
+
     if (coap_wrapper_)
     {
         delete coap_wrapper_;
+        coap_wrapper_ = 0;
     }
-        
+
     return 0;
 }
 
@@ -77,7 +84,7 @@ int ZigbeeCoAPService::handle_input (ACE_HANDLE fd)
 {
     if (coap_wrapper_)
         coap_wrapper_->handle_event();
-        
+
     return 0;
 }
 
@@ -86,24 +93,24 @@ int ZigbeeCoAPService::handle_timeout (const ACE_Time_Value &tv,
 {
     ACE_Time_Value timeout;
     timeout.sec(5);
-    
+
     coap_wrapper_->time_out(timeout);
     net_->schedule_timer(this, 0, timeout);
-    
+
     return 0;
 }
 
 ACE_HANDLE ZigbeeCoAPService::get_handle (void) const
 {
     ACE_DEBUG((LM_DEBUG,
-               "call RDService get_handle\n"));
-               
+               "call ZigbeeCoAPService get_handle\n"));
+
     if (coap_wrapper_)
     {
         return coap_wrapper_->get_handle();
     }
 
-    return -1;    
+    return -1;
 }
 
 void ZigbeeCoAPService::create_resource_by_zigbeenode(unsigned char ep,
@@ -111,7 +118,7 @@ void ZigbeeCoAPService::create_resource_by_zigbeenode(unsigned char ep,
                                    ZigbeeNode *node)
 {
     ZigbeeCoapResource *r;
-    
+
     if ((r = new ZigbeeCoapResource(coap_wrapper_)) == 0)
     {
         ACE_DEBUG((LM_DEBUG, "Failed to zigbee coap resource()\n"));
@@ -121,7 +128,7 @@ void ZigbeeCoAPService::create_resource_by_zigbeenode(unsigned char ep,
     r->set_zigbee_desc(desc);
     r->set_zigbee_ep(ep);
     r->set_zigbee_node(node);
-    
+
     zigbee_coap_resource_list_.push_back(r);
 
     if ((r->Create()) == 0)
@@ -172,7 +179,7 @@ new_option_node(unsigned short key, unsigned int length, unsigned char *data) {
 
 
 static void
-handle_full_uri(std::string &full_url, coap_uri_t &uri, coap_list_t *&optlist) 
+handle_full_uri(std::string &full_url, coap_uri_t &uri, coap_list_t *&optlist)
 {
     unsigned char portbuf[2];
 #define BUFSIZE 40
@@ -184,61 +191,61 @@ handle_full_uri(std::string &full_url, coap_uri_t &uri, coap_list_t *&optlist)
     /* split arg into Uri-* options */
     coap_split_uri((unsigned char *)full_url.c_str(), full_url.length(), &uri );
 
-    if (uri.port != COAP_DEFAULT_PORT) 
+    if (uri.port != COAP_DEFAULT_PORT)
     {
-        coap_insert( &optlist, 
+        coap_insert( &optlist,
            new_option_node(COAP_OPTION_URI_PORT,
         		   coap_encode_var_bytes(portbuf, uri.port),
         		 portbuf),
-           order_opts);    
+           order_opts);
     }
 
-    if (uri.path.length) 
+    if (uri.path.length)
     {
         buflen = BUFSIZE;
         res = coap_split_path(uri.path.s, uri.path.length, buf, &buflen);
 
-        while (res--) 
+        while (res--)
         {
             coap_insert(&optlist, new_option_node(COAP_OPTION_URI_PATH,
             			      COAP_OPT_LENGTH(buf),
             			      COAP_OPT_VALUE(buf)),
                 order_opts);
 
-            buf += COAP_OPT_SIZE(buf);      
+            buf += COAP_OPT_SIZE(buf);
         }
     }
 
-    if (uri.query.length) 
+    if (uri.query.length)
     {
         buflen = BUFSIZE;
         buf = _buf;
         res = coap_split_query(uri.query.s, uri.query.length, buf, &buflen);
 
-        while (res--) 
+        while (res--)
         {
         coap_insert(&optlist, new_option_node(COAP_OPTION_URI_QUERY,
         			      COAP_OPT_LENGTH(buf),
         			      COAP_OPT_VALUE(buf)),
             order_opts);
 
-        buf += COAP_OPT_SIZE(buf);      
+        buf += COAP_OPT_SIZE(buf);
         }
     }
 }
 
 static void
-create_token(str &token) 
+create_token(str &token)
 {
   static unsigned long i;
-  
+
   ACE_OS::snprintf((char *)token.s, 8, "hello%lu",i++);
-  
+
   token.length = strlen((char *)token.s);
 }
 
 static coap_pdu_t *
-coap_new_request(coap_context_t *ctx, unsigned char m, coap_list_t *&options, std::string &payload) 
+coap_new_request(coap_context_t *ctx, unsigned char m, coap_list_t *&options, std::string &payload)
 {
     coap_pdu_t *pdu;
     coap_list_t *opt;
@@ -256,20 +263,20 @@ coap_new_request(coap_context_t *ctx, unsigned char m, coap_list_t *&options, st
     pdu->hdr->code = m;
 
     pdu->hdr->token_length = the_token.length;
-    
-    if ( !coap_add_token(pdu, the_token.length, the_token.s)) 
+
+    if ( !coap_add_token(pdu, the_token.length, the_token.s))
     {
         ACE_DEBUG((LM_DEBUG,"cannot add token to request\n"));
     }
 
-    for (opt = options; opt; opt = opt->next) 
+    for (opt = options; opt; opt = opt->next)
     {
         coap_add_option(pdu, COAP_OPTION_KEY(*(coap_option *)opt->data),
         	    COAP_OPTION_LENGTH(*(coap_option *)opt->data),
         	    COAP_OPTION_DATA(*(coap_option *)opt->data));
     }
 
-    if (payload.length()) 
+    if (payload.length())
     {
       coap_add_data(pdu, payload.length(), (const unsigned char*)payload.c_str());
     }
@@ -277,9 +284,9 @@ coap_new_request(coap_context_t *ctx, unsigned char m, coap_list_t *&options, st
     return pdu;
 }
 
-static int 
+static int
 resolve_address(const str *server, struct sockaddr *dst) {
-  
+
   struct addrinfo *res, *ainfo;
   struct addrinfo hints;
   static char addrstr[256];
@@ -322,30 +329,30 @@ resolve_address(const str *server, struct sockaddr *dst) {
 void ZigbeeCoAPService::register_resource_to_rd(CoAPResource *r)
 {
    char buf[0xff];
-   
+
    std::string payload = r->get_payload();
    std::string ep = r->get_ep();
    std::string uri = r->uri();
-   
+
    ACE_OS::sprintf(buf, "coap://127.0.0.1:%d/rd?ep=%s",conf_->rd_addr_port_,
                                                        ep.c_str());
-                                                       
+
     std::string full_url = buf;
-    
+
     // send coap request to rd.
     {
         coap_list_t *optlist = NULL;
         coap_uri_t uri;
-        
+
         coap_address_t dst;
         char addr[INET6_ADDRSTRLEN];
         void *addrptr = NULL;
-        
+
         coap_pdu_t  *pdu;
         str server;
         unsigned short port = COAP_DEFAULT_PORT;
         int opt, res;
-        
+
         unsigned char method = 2;
 
         handle_full_uri(full_url, uri, optlist);
@@ -356,18 +363,18 @@ void ZigbeeCoAPService::register_resource_to_rd(CoAPResource *r)
         /* resolve destination address where server should be sent */
         res = resolve_address(&server, &dst.addr.sa);
 
-        if (res < 0) 
+        if (res < 0)
         {
             ACE_DEBUG((LM_DEBUG,"failed to resolve address\n"));
         }
-        
+
         dst.size = res;
         dst.addr.sin.sin_port = htons(port);
 
         /* add Uri-Host if server address differs from uri.host */
-        switch (dst.addr.sa.sa_family) 
+        switch (dst.addr.sa.sa_family)
         {
-        case AF_INET: 
+        case AF_INET:
           addrptr = &dst.addr.sin.sin_addr;
           break;
         case AF_INET6:
@@ -380,15 +387,15 @@ void ZigbeeCoAPService::register_resource_to_rd(CoAPResource *r)
 
         if (addrptr
             && (inet_ntop(dst.addr.sa.sa_family, addrptr, addr, sizeof(addr)) != 0)
-            && (strlen(addr) != uri.host.length 
-            || memcmp(addr, uri.host.s, uri.host.length) != 0)) 
+            && (strlen(addr) != uri.host.length
+            || memcmp(addr, uri.host.s, uri.host.length) != 0))
         {
             /* add Uri-Host */
             coap_insert(&optlist, new_option_node(COAP_OPTION_URI_HOST,
                             uri.host.length, uri.host.s),
               order_opts);
         }
-    
+
         if (!(pdu = coap_new_request(coap_wrapper_->coap_ctx_, method, optlist, payload)))
         {
             ACE_DEBUG((LM_DEBUG, "cant create pdu\n"));
@@ -396,7 +403,7 @@ void ZigbeeCoAPService::register_resource_to_rd(CoAPResource *r)
         else
         {
             //coap_show_pdu(pdu);
-            coap_send(coap_wrapper_->coap_ctx_, &dst, pdu); 
+            coap_send(coap_wrapper_->coap_ctx_, &dst, pdu);
             coap_delete_pdu(pdu);
         }
 
