@@ -63,6 +63,7 @@ SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Node_Cache.cpp
 SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Device.cpp
 SOURCE_FILES += $(SOURCE_DIR)/Zigbee_CoAP_Service.cpp
 SOURCE_FILES += $(SOURCE_DIR)/Zigbee_CoAP_Resource.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Zigbee_Serialport_Monitor.cpp
 SOURCE_FILES += $(SOURCE_DIR)/cJSON.c
 
 
