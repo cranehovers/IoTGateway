@@ -17,12 +17,21 @@ class ZigbeeService;
 class Gateway
 {
 public:
-    
-      int Init();
-      int Start();
-      int Stop();
-      int Close();
-      
+
+    Gateway()
+    {
+        svc_conf_ = 0;
+        svc_net_ = 0;
+        svc_rd_ = 0;
+        svc_proxy_ = 0;
+        svc_zigbee_ = 0;
+    }
+
+    int Init();
+    int Start();
+    int Stop();
+    int Close();
+
 private:
 
     CfgService *svc_conf_;
@@ -30,7 +39,7 @@ private:
     RDService  *svc_rd_;
     FWProxyService *svc_proxy_;
     ZigbeeService *svc_zigbee_;
-    
+
 };
 
 // Use ACE Singleton wrapper Gateway object.

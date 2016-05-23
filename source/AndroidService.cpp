@@ -52,7 +52,6 @@ int startService()
     if ( IoTGateway::instance()->Init() >= 0)
     {
         IoTGateway::instance()->Start();
-        IoTGateway::instance()->Stop();
     }
     else
     {
@@ -65,9 +64,5 @@ int startService()
 
 int stopService()
 {
-    ACE_DEBUG((LM_DEBUG, "Stop!!!!\n"));
-
-    IoTGateway::instance()->Stop();
-
     return 0;
 }

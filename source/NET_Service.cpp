@@ -64,6 +64,8 @@ int NetService::svc()
     ACE_DEBUG((LM_DEBUG,
                 "Create Net Service thread\n"));
 
+    break_netsvc_thread_flag = false;
+
     int code = 0;
     reactor_.owner (ACE_OS::thr_self ());
 
