@@ -16,7 +16,7 @@
 #define SIMPLE_EP_DESC_RSP_CMD0 0x45
 #define SIMPLE_EP_DESC_RSP_CMD1 0x84
 
-/// internal message type 
+/// internal message type
 #define ROUTER_RESPONSE 0x10
 #define ROUTER_EXIT_THREAD 0x20
 
@@ -27,14 +27,17 @@ typedef struct RouteObject
 }RouteObject;
 
 ZigbeeFrameRouter::ZigbeeFrameRouter()
-{
-    thread_exit_flag = 0;
-    activate();
+{
 }
 
 ZigbeeFrameRouter::~ZigbeeFrameRouter()
 {
-    clear();
+}
+
+void ZigbeeFrameRouter::start()
+{
+    thread_exit_flag = 0;
+    activate();
 }
 
 int ZigbeeFrameRouter::svc (void)
@@ -42,16 +45,16 @@ int ZigbeeFrameRouter::svc (void)
     while( !thread_exit_flag)
     {
         ACE_Message_Block *b = 0;
-        
+
         if (message_queue.dequeue_head(b) == -1 )
         {
-            ACE_DEBUG((LM_DEBUG, "faile get block from queue\n"));
+            ACE_DEBUG((LM_DEBUG, "ZigbeeFrameRouter faile get block from queue\n"));
             continue;
         }
 
         if (b->msg_type() ==ROUTER_EXIT_THREAD)
         {
-            break;
+           // break;
         }
         else if (b->msg_type() == ROUTER_RESPONSE)
         {
@@ -63,21 +66,24 @@ int ZigbeeFrameRouter::svc (void)
 
         b->release();
     }
-    
-    return 0;    
+
+    return 0;
 }
 
 void ZigbeeFrameRouter::clear()
 {
     thread_exit_flag = 1;
-    {        
+    {
         ACE_Message_Block *b = new ACE_Message_Block();
         b->msg_type(ROUTER_EXIT_THREAD);
-        
+
         message_queue.enqueue_head(b);
         wait();
+
+        ACE_DEBUG((LM_DEBUG, "exit ZigbeeFrameRouter thread\n"));
+
     }
-    
+
     while (!message_queue.is_empty())
     {
         ACE_Message_Block *b = 0;
@@ -89,7 +95,10 @@ void ZigbeeFrameRouter::clear()
         b->release();
     }
 
-    message_queue.close();
+
+    ACE_DEBUG((LM_DEBUG, "exit ZigbeeFrameRouter\n"));
+
+    //message_queue.close();
 }
 
 int ZigbeeFrameRouter::route(ZigbeeResponse *resp)
@@ -101,7 +110,7 @@ int ZigbeeFrameRouter::route(ZigbeeResponse *resp)
     ro->o = resp;
 
     if (message_queue.enqueue_tail(b) == -1 )
-    {            
+    {
         ACE_DEBUG((LM_DEBUG, "faild to input node block into queue\n"));
 
         b->release();
@@ -114,7 +123,7 @@ int ZigbeeFrameRouter::route(ZigbeeResponse *resp)
 int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
 {
     dump(resp->base(), resp->size());
-    
+
     // IEEE_ADDR_RSP
     if (resp->cmd0() == IEEE_ADDR_RSP_CMD0 &&
         resp->cmd1() == IEEE_ADDR_RSP_CMD1)
@@ -122,7 +131,7 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
        unsigned char short_addr[2];
        unsigned char ieee_addr[8];
        unsigned char status;
-       
+
        status = resp->base()[4];
 
        //dump(&status, 1);
@@ -132,9 +141,9 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
            ACE_OS::memcpy(ieee_addr, &resp->base()[5],8);
            ACE_OS::memcpy(short_addr, &resp->base()[13],2);
 
-           //dump(ieee_addr, 8);           
+           //dump(ieee_addr, 8);
            //dump(short_addr, 2);
-           
+
            ZigbeeNode *node =
            gZigbeeNodeCache::instance()->find_node_by_shortaddr(short_addr);
 
@@ -144,8 +153,8 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
                unsigned char child_count;
                unsigned char *child_list;
 
-               node->set_ieee_addr(ieee_addr); 
-                              
+               node->set_ieee_addr(ieee_addr);
+
                start_index = resp->base()[15];
                child_count = resp->base()[16];
 
@@ -163,13 +172,13 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
                node->get_self_ep_count();
            }
        }
-       
+
     }
     else if (resp->cmd0() == ACTIVE_EP_RSP_CMD0 &&
         resp->cmd1() == ACTIVE_EP_RSP_CMD1)
     {
         unsigned char status;
-        
+
         status = resp->base()[6];
 
         //dump(&status, 1);
@@ -202,14 +211,14 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
                     node->get_self_ep_desc();
                 }
             }
-            
-        }        
+
+        }
     }
     else if (resp->cmd0() == SIMPLE_EP_DESC_RSP_CMD0 &&
         resp->cmd1() == SIMPLE_EP_DESC_RSP_CMD1)
     {
         unsigned char status;
-        
+
         status = resp->base()[6];
 
         //dump(&status, 1);
@@ -219,7 +228,7 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
             unsigned char short_addr[2];
             unsigned char ep;
             NodeSimpleDesc *desc = new NodeSimpleDesc();
-           
+
             ACE_OS::memcpy(short_addr, &resp->base()[7],2);
 
             //dump(short_addr, 2);
@@ -227,36 +236,36 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
             ep = resp->base()[10];
 
             //dump(&ep, 1);
-            
+
             desc->profileid_[0] = resp->base()[11];
             desc->profileid_[1] = resp->base()[12];
 
             //dump(desc->profileid_, 2);
-            
+
             desc->deviceid_[0] = resp->base()[13];
             desc->deviceid_[1] = resp->base()[14];
 
             //dump(desc->deviceid_, 2);
-            
+
             desc->device_ver_ = resp->base()[15];
 
             //dump(&desc->device_ver_, 1);
-            
+
 
             desc->num_of_in_cls_= resp->base()[16];
             desc->num_of_out_cls_= resp->base()[16 + desc->num_of_in_cls_*2+1];
 
             //dump(&desc->num_of_in_cls_, 1);
             //dump(&desc->num_of_out_cls_, 1);
-            
+
 
             if (desc->num_of_in_cls_ > 0)
             {
                 desc->in_cls_ = new unsigned char[desc->num_of_in_cls_ * 2];
-                
+
                 ACE_OS::memcpy(desc->in_cls_, &resp->base()[17], desc->num_of_in_cls_ *2);
 
-                
+
                 //dump(desc->in_cls_, desc->num_of_in_cls_*2);
             }
 
@@ -268,7 +277,7 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
 
                 //dump(desc->out_cls_, desc->num_of_out_cls_*2);
             }
-            
+
             ZigbeeNode *node =
             gZigbeeNodeCache::instance()->find_node_by_shortaddr(short_addr);
 
@@ -276,10 +285,10 @@ int ZigbeeFrameRouter::handle_response(ZigbeeResponse *resp)
             {
                 node->set_ep_simple_desc(ep, desc);
             }
-            
-        }        
+
+        }
     }
-    
+
     return 0;
 }
 
@@ -288,7 +297,7 @@ void ZigbeeFrameRouter::dump(unsigned char *buf, unsigned char len)
 {
     for (int i=0; i < len; i++)
         ACE_DEBUG((LM_DEBUG,"%0x ",buf[i]));
-        
+
     ACE_DEBUG((LM_DEBUG, "\n"));
 }
 

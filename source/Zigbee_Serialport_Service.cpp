@@ -333,7 +333,7 @@ int ZigbeeSerialportService::send(ZigbeeRequest  *req)
 
         if (task_->message_queue.enqueue_tail(b) == -1 )
         {
-            ACE_DEBUG((LM_DEBUG, "faild to input node block into queue\n"));
+            ACE_DEBUG((LM_DEBUG, "ZigbeeSerialportService faild to input node block into queue\n"));
         }
 
         delete req;

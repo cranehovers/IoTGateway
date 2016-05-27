@@ -10,6 +10,8 @@
 #include "Zigbee_Network.h"
 #include "Zigbee_CoAP_Service.h"
 #include "Zigbee_Serialport_Monitor.h"
+#include "Zigbee_Frame_Router.h"
+#include "Zigbee_Node_Cache.h"
 
 
 ZigbeeService::ZigbeeService(CfgService *conf,
@@ -96,6 +98,8 @@ void ZigbeeService::serialport_plugin()
 
     if (conf_->enable_zigbee_ == true)
     {
+        gZigbeeFrameRouter::instance()->start();
+
         coap_svc_ = new ZigbeeCoAPService(conf_, net_);
         ZigbeeCoAPService::instance_ = coap_svc_;
 
@@ -128,6 +132,9 @@ void ZigbeeService::serialport_unplugin()
     if(conf_->enable_zigbee_ == true)
     {
         ACE_DEBUG((LM_DEBUG, "Delete all zigbee resource after serial prot unplugined\n"));
+
+        gZigbeeFrameRouter::instance()->clear();
+        gZigbeeNodeCache::instance()->clear();
 
         if (serialport_)
         {

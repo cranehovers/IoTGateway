@@ -19,14 +19,14 @@ public:
     void dump(unsigned char *buf, unsigned char len);
 
     virtual int svc (void);
-    
+    void start();
     void clear();
 
 private:
 
     int handle_response(ZigbeeResponse *resp);
-    
-    unsigned short thread_exit_flag;    
+
+    unsigned short thread_exit_flag;
     ACE_Message_Queue<ACE_MT_SYNCH> message_queue;
 };
 

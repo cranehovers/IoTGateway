@@ -20,11 +20,12 @@ public:
 
     void add(ZigbeeNodeKey *key, ZigbeeNode *node);
     ZigbeeNode *find_node_by_shortaddr(unsigned char short_addr[2]);
+    void clear();
 
 
 private:
 
-    std::map<ZigbeeNodeKey*, ZigbeeNode*> node_cache_;    
+    std::map<ZigbeeNodeKey*, ZigbeeNode*> node_cache_;
 };
 
 typedef ACE_Singleton<ZigbeeNodeCache, ACE_Mutex> gZigbeeNodeCache;

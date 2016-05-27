@@ -33,7 +33,6 @@ int SerialPortMonitor::svc (void)
             // the serial port be plugined
             else
             {
-                ACE_OS::close(ttyusb_file_handle);
                 current_status = STATUS_PLUGIN;
             }
 
@@ -54,7 +53,14 @@ int SerialPortMonitor::svc (void)
 
                     case STATUS_PLUGIN:
                     {
-                        zigbee_service_->serialport_plugin();
+                        ACE_DEBUG((LM_DEBUG, "Waiting for zigbee devices register to coordinator, 30 seconds\n"));
+
+                        ACE_OS::sleep(30);
+
+                        if (ACE_OS::access(conf_->serial_port_.c_str(), 0) == 0)
+                        {
+                            zigbee_service_->serialport_plugin();
+                        }
                     }
                     break;
                 }
@@ -62,7 +68,7 @@ int SerialPortMonitor::svc (void)
         }
 
         // sleep 1 second, then monitor again.
-        ACE_OS::sleep(1);
+        ACE_OS::sleep(2);
     }
 
     return 0;

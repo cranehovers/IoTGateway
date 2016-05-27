@@ -14,10 +14,7 @@ ZigbeeNetwork::ZigbeeNetwork()
 
 ZigbeeNetwork::~ZigbeeNetwork()
 {
-    if(root_node_)
-    {
-        delete root_node_;
-    }
+
 }
 
 void ZigbeeNetwork::create_topology()
@@ -28,7 +25,7 @@ void ZigbeeNetwork::create_topology()
         root_node_->set();
 
         root_node_->get_self_basic_info();
-        
+
     }
     /* FIXME: todo handle this exception*/
     else

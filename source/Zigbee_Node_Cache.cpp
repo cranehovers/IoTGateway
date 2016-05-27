@@ -13,6 +13,23 @@ ZigbeeNodeCache::~ZigbeeNodeCache()
 {
 }
 
+void ZigbeeNodeCache::clear()
+{
+    std::map<ZigbeeNodeKey*, ZigbeeNode*>::iterator e;
+
+    e = node_cache_.begin();
+
+    for (; e != node_cache_.end(); ++e)
+    {
+        ZigbeeNode* tmp = e->second;
+
+        delete tmp;
+    }
+
+    ACE_DEBUG((LM_DEBUG, "exit ZigbeeNodeCache thread\n"));
+
+}
+
 void ZigbeeNodeCache::add(ZigbeeNodeKey *key, ZigbeeNode *node)
 {
     node_cache_.insert(std::pair<ZigbeeNodeKey*, ZigbeeNode*>(key, node));
