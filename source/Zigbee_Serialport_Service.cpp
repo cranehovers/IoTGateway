@@ -315,10 +315,6 @@ int ZigbeeSerialportService::handle_timeout (const ACE_Time_Value &tv,
 
 ACE_HANDLE ZigbeeSerialportService::get_handle (void) const
 {
-
-    ACE_DEBUG((LM_DEBUG,
-           "call ZigbeeSerialportService get_handle\n"));
-
     if (io_svc_)
     {
         return io_svc_->get_handle();

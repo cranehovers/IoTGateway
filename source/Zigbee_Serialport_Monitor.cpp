@@ -23,10 +23,10 @@ int SerialPortMonitor::svc (void)
     {
         if (conf_  != 0 && zigbee_service_ != 0)
         {
-            int ttyusb_file_handle = ACE_OS::open(conf_->serial_port_.c_str(), O_RDWR|O_NOCTTY|O_NDELAY);
+            int ttyusb_file_handle = ACE_OS::access(conf_->serial_port_.c_str(), 0);
 
             // the serial port not be plugined
-            if (ttyusb_file_handle < 0 )
+            if (ttyusb_file_handle != 0 )
             {
                 current_status = STATUS_NOT_PLUGIN;
             }
