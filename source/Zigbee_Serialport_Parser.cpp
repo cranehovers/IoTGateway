@@ -63,21 +63,19 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
 {
     unsigned char  ch;
     unsigned char  bytesInRxBuffer;
-    
-    unsigned char  CMD_Token[2];
-    unsigned char  LEN_Token;
-    unsigned char  FSC_Token;
-    unsigned char  tempDataLen;
+
+    unsigned char  LEN_Token = current_frame->token_len;
+    unsigned char  tempDataLen = current_frame->copied_len;
 
     //ACE_DEBUG((LM_DEBUG, "\nlen=%d(copied=%d, len=%d)\n", len,
     //    current_frame->copied_len,current_frame->token_len));
-    
+
     for (int i=0; i < len;)
     {
       ch = data[i];
 
       //ACE_DEBUG((LM_DEBUG, "(%d)%x ", i,ch));
-    
+
       switch (current_frame->state)
       {
         case SOP_STATE:
@@ -88,17 +86,17 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
             //ACE_DEBUG((LM_DEBUG, "(*%d)%x ", i,ch));
           }
           break;
-    
+
         case LEN_STATE:
           LEN_Token = ch;
           tempDataLen = current_frame->copied_len;
-    
+
           /* Allocate memory for the data */
           if (LEN_Token > 0)
           {
             current_frame->data = new unsigned char[LEN_Token];
           }
-          
+
           if (current_frame->data)
           {
             current_frame->token_len = LEN_Token;
@@ -111,13 +109,13 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
           }
           //ACE_DEBUG((LM_DEBUG, "(*%d)%x ", i,ch));
           break;
-    
+
         case CMD_STATE1:
           current_frame->cmd0 = ch;
           current_frame->state = CMD_STATE2;
           //ACE_DEBUG((LM_DEBUG, "(*%d)%x ", i,ch));
           break;
-    
+
         case CMD_STATE2:
           current_frame->cmd1 = ch;
           /* If there is no data, skip to FCS state */
@@ -131,16 +129,16 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
           }
 
           //ACE_DEBUG((LM_DEBUG, "(*%d)%x ", i,ch));
-          
+
           break;
-    
+
         case DATA_STATE:
 
           //ACE_DEBUG((LM_DEBUG, "(*%d)%x ", i,ch));
-    
+
           /* Check number of bytes left in the Rx buffer */
           bytesInRxBuffer = (len-i);
-    
+
           /* If the remain of the data is there, read them all, otherwise, just read enough */
           if (bytesInRxBuffer <= LEN_Token - tempDataLen)
           {
@@ -159,7 +157,7 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
           //{
             //ACE_DEBUG((LM_DEBUG, "(**%d)%x ", i+j,data[i+j]));
           //}
-    
+
           /* If number of bytes read is equal to data length, time to move on to FCS */
           if ( current_frame->copied_len == LEN_Token )
               current_frame->state = FCS_STATE;
@@ -167,11 +165,11 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
           i += (bytesInRxBuffer-1);
 
           //ACE_DEBUG((LM_DEBUG, "(**%d)i ", i));
-           
+
           break;
-    
+
         case FCS_STATE:
-    
+
           current_frame->fcs = ch;
 
           // FIXME: todo xor
@@ -182,16 +180,16 @@ int ZigbeeSerialportParser::add_data(unsigned char *data, unsigned int len)
           current_frame->state = SOP_STATE;
 
           //ACE_DEBUG((LM_DEBUG, "(*%d)%x ", i,ch));
-    
+
           break;
-    
+
         default:
          break;
       }
 
       i +=1;
     }
-    
+
     return 0;
 }
 
