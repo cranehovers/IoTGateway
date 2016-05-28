@@ -26,6 +26,8 @@ void ZigbeeNodeCache::clear()
         delete tmp;
     }
 
+    node_cache_.clear();
+
     ACE_DEBUG((LM_DEBUG, "exit ZigbeeNodeCache thread\n"));
 
 }
