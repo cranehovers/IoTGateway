@@ -12,7 +12,7 @@ REF_DIR := $(TOP_DIR)/3rd
 CC = $(CXX)
 
 CFLAGS += -g 
-CFLAGS += -O2 
+#CFLAGS += -O2 
 CFLAGS += -DWITH_POSIX
 CFLAGS += -I$(SOURCE_DIR)
 
