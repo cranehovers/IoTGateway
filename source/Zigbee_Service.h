@@ -26,6 +26,7 @@ public:
 
     void serialport_plugin();
     void serialport_unplugin();
+    void update_zigbee_network();
 
 private:
 

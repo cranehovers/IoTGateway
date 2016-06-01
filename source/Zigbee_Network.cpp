@@ -43,3 +43,13 @@ void ZigbeeNetwork::notify(unsigned short n)
 }
 
 
+void ZigbeeNetwork::update_network()
+{
+    if (root_node_ != 0)
+    {
+        ACE_DEBUG((LM_DEBUG, "***** update zigbee netwoek by coordinator**** \n\n"));
+        
+        root_node_->get_self_basic_info();
+    }
+}
+

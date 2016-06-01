@@ -89,7 +89,7 @@ public:
      virtual void get_self_ep_count(){};
      virtual void get_self_ep_desc(){};
      
-     virtual void set();
+     virtual bool set();
      virtual void set_child(unsigned char* child_list, unsigned char count);
      virtual void set_ep(unsigned char* ep_list, unsigned char count);
      virtual void set_ep_simple_desc(unsigned char ep, NodeSimpleDesc *desc);

@@ -162,3 +162,13 @@ void ZigbeeService::serialport_unplugin()
     }
 }
 
+void ZigbeeService::update_zigbee_network()
+{
+    if (network_ != 0 && 
+        serialport_ != 0 &&
+        coap_svc_ != 0)
+    {
+        network_->update_network();
+    }
+}
+

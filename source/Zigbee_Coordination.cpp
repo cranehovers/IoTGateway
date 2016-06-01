@@ -46,11 +46,17 @@ void ZigbeeCoordination::create_device()
 
         device->set_short_addr(short_addr);
         device->set_bind_ep(get_bind_ep());
-        device->set();
 
-        child_list_.push_back(device);
+        if ( true == device->set())
+        {
+            child_list_.push_back(device);
 
-        device->get_self_basic_info();
+            device->get_self_basic_info();
+        }
+        else
+        {
+            delete device;
+        }  
     }
 
 }

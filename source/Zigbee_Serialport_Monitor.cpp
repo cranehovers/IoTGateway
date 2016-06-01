@@ -19,6 +19,9 @@ int SerialPortMonitor::svc (void)
     int status = STATUS_NOT_PLUGIN;
     int current_status = STATUS_NOT_PLUGIN;
 
+    // update the zigbee network.
+    int update_times_count = 0;
+
     while (thread_exit_flag == 0)
     {
         if (conf_  != 0 && zigbee_service_ != 0)
@@ -40,6 +43,7 @@ int SerialPortMonitor::svc (void)
             if (status !=  current_status)
             {
                 status = current_status;
+                update_times_count = 0;
 
                 ACE_DEBUG((LM_DEBUG, "The serial port status changed,%d\n", current_status));
 
@@ -53,9 +57,9 @@ int SerialPortMonitor::svc (void)
 
                     case STATUS_PLUGIN:
                     {
-                        ACE_DEBUG((LM_DEBUG, "Waiting for zigbee devices register to coordinator, 30 seconds\n"));
+                        //ACE_DEBUG((LM_DEBUG, "Waiting for zigbee devices register to coordinator, 30 seconds\n"));
 
-                        ACE_OS::sleep(30);
+                        //ACE_OS::sleep(30);
 
                         if (ACE_OS::access(conf_->serial_port_.c_str(), 0) == 0)
                         {
@@ -63,6 +67,17 @@ int SerialPortMonitor::svc (void)
                         }
                     }
                     break;
+                }
+            }
+            else if (status == STATUS_PLUGIN)
+            {
+                update_times_count += 1;
+
+                // every 10 seconds to update the zigbee network
+                if ( update_times_count == 10)
+                {
+                    update_times_count = 0;
+                    zigbee_service_->update_zigbee_network();
                 }
             }
         }

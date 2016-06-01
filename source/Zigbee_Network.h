@@ -18,6 +18,7 @@ public:
     ~ZigbeeNetwork();
 
     void create_topology();
+    void update_network();
     virtual void notify(unsigned short n);
     
  private:

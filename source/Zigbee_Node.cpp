@@ -69,9 +69,18 @@ ZigbeeNode::NODE_TYPE ZigbeeNode::get_node_type()
     return node_type_;
 }
 
-void ZigbeeNode::set()
+bool ZigbeeNode::set()
 {
-    gZigbeeNodeCache::instance()->add(key_, this);
+    ZigbeeNode *n = gZigbeeNodeCache::instance()->find_node_by_shortaddr(get_short_addr());
+
+    if (n == 0)
+    {
+        gZigbeeNodeCache::instance()->add(key_, this);
+
+        return true;
+    }
+
+    return false;
 }
 
 void ZigbeeNode::set_child(unsigned char* child_list, unsigned char count)
@@ -88,6 +97,25 @@ void ZigbeeNode::set_child(unsigned char* child_list, unsigned char count)
     //FIXME:todo exception
     else
     {
+        if ( child_count_ != count || 
+             ACE_OS::memcmp(child_list_, child_list, count) != 0 )
+        {
+            ACE_DEBUG((LM_DEBUG, "******* update the child_count and child_list *******\n\n"));
+            
+            child_count_ = count;
+
+            if ( child_list_ != 0 )
+            {
+                delete [] child_list_;
+                
+                child_list_ = new unsigned char[count]; 
+            }
+
+            if ( child_list_ != 0 )
+            {
+                ACE_OS::memcpy(child_list_, child_list, count); 
+            }
+        }
     } 
 }
 
@@ -103,6 +131,25 @@ void ZigbeeNode::set_ep(unsigned char* ep_list, unsigned char count)
     //FIXME:todo exception
     else
     {
+        if ( ep_count_ != count ||
+             ACE_OS::memcmp(ep_list_, ep_list, count) != 0 )
+        {
+            ACE_DEBUG((LM_DEBUG, "****** update the ep_count and ep_list *****\n\n"));
+            
+            ep_count_ = count;
+
+            if ( ep_list_ != 0 )
+            {
+                delete [] ep_list_;
+                
+                ep_list_ = new unsigned char[count]; 
+            }
+
+            if ( ep_list_ != 0 )
+            {
+                ACE_OS::memcpy(ep_list_, ep_list, count); 
+            }            
+        }
     }
 }
 
@@ -138,9 +185,18 @@ unsigned char ZigbeeNode::get_bind_ep()
 
 void ZigbeeNode::set_ep_simple_desc(unsigned char ep, NodeSimpleDesc *desc)
 {
-    ep_simple_desc_.insert(std::pair<unsigned char,NodeSimpleDesc* >(ep, desc));
+    if (ep_simple_desc_.find(ep) == ep_simple_desc_.end())
+    {
+        ep_simple_desc_.insert(std::pair<unsigned char,NodeSimpleDesc* >(ep, desc));
 
-    create_coap_resource(ep, desc);
+        create_coap_resource(ep, desc);
+    }
+    else
+    {
+        // update case
+        // now, only delete the description
+        delete desc;
+    }
 
     if(get_node_type() == Coordination)
     {
