@@ -1,5 +1,8 @@
 
 #include <runtime/ServiceLoader.h>
+#include <runtime/ServiceFactory.h>
+#include <runtime/ServiceContext.h>
+
 
 namespace GWSP {
 
@@ -21,16 +24,14 @@ bool ServiceLoader::unInitialize()
     return true;
 }
 
-
 int ServiceLoader::count()
 {
-    return 0;
+    return serviceFactorySingleton::instance()->count();
 }
 
-Service *ServiceLoader::get(int index)
+Service *ServiceLoader::create(int index, ServiceContext &context)
 {
-
-    return 0;
+    return serviceFactorySingleton::instance()->get(index, context);
 }
 
 

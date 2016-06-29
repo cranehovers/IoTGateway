@@ -9,6 +9,7 @@
 namespace GWSP {
 
 class Service;
+class ServiceContext;
 
 class ServiceLoader : public toolkit::RefCountedObject
 {
@@ -21,7 +22,7 @@ public:
     bool unInitialize();
 
     int count();
-    Service *get(int index);
+    Service *create(int index, ServiceContext &context);
 
 private:
 

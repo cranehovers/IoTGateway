@@ -1,7 +1,10 @@
 
 #include <toolkit/ACE_Header_File.h>
 #include <server/Application.h>
-
+#include <runtime/ServicesRuntime.h>
+#include <runtime/Service.h>
+#include <runtime/ServiceRepository.h>
+#include <services/console/ConsoleService.h>
 
 
 namespace GWServer {
@@ -35,6 +38,20 @@ int GWApplication::run()
         ACE_DEBUG((LM_DEBUG, "start runtime failed\n"));
 
         return -1;
+    }
+
+
+    std::string consoleServiceName("service.console");
+    
+    GWSP::ServiceRepository::ServicePtr consoleServicePtr =
+    _servicesRuntimePtr->getRepository()->get(consoleServiceName);
+
+    if (consoleServicePtr->name().compare(consoleServiceName) == 0)
+    {
+        Services::Console::ConsoleService &consoleServiceRef =
+        *dynamic_cast<Services::Console::ConsoleService*> (consoleServicePtr.get());
+
+        consoleServiceRef.wait();
     }
 
     return 0;

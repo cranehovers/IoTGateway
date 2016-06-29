@@ -10,7 +10,10 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
 
 AUX_SOURCE_DIRECTORY("${PROJECT_SOURCE_DIR}/server" server_sources)
 
-ADD_EXECUTABLE(${GWSP} ${server_sources} ${G_RUNTIME_SOURCES} ${G_TOOLKIT_SOURCES})
+ADD_EXECUTABLE(${GWSP} 
+			   ${server_sources} 
+               ${ALL_SOURCES_LIST} 
+              )
 
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/3rd/ace/lib
                  ${PROJECT_SOURCE_DIR}/3rd/libcoap/lib

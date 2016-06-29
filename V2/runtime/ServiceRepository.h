@@ -11,11 +11,14 @@ namespace GWSP {
 
 class ServiceLoader;
 class Service;
+class ServiceContext;
 
 class ServiceRepository : public toolkit::RefCountedObject
 {
 
 public:
+    typedef toolkit::AutoPtr<Service> ServicePtr;
+    
     ServiceRepository();
     virtual ~ServiceRepository();
 
@@ -23,16 +26,18 @@ public:
     bool unInitialize();
     bool startAllServices();
     bool InitializeAllServices();
-    bool loadAllServices(ServiceLoader &loader);
+    bool loadAllServices(ServiceLoader &loader, ServiceContext &context);
     bool add(std::string &name, Service *s);
+    ServicePtr &get(std::string &name);
 
 private:
     ServiceRepository(ServiceRepository &other);
     ServiceRepository &operator=(ServiceRepository &other);
 
-    typedef toolkit::AutoPtr<Service> ServicePtr;
+    typedef ACE_Recursive_Thread_Mutex SeviceMutex;
     
     std::map<std::string, ServicePtr> _servicesMap;
+    SeviceMutex _serviceMutex;
     
 };
 

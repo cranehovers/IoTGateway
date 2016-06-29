@@ -9,10 +9,16 @@ namespace GWSP{
 
 class ServiceRepository;
 class ServiceLoader;
+class ServiceContext;
 
 class ServicesRuntime : public toolkit::RefCountedObject
 {
 public:
+    typedef toolkit::AutoPtr<ServiceRepository>  ServiceRepositoryPtr;    
+    typedef toolkit::AutoPtr<ServiceLoader>  ServiceLoaderPtr;
+    typedef toolkit::AutoPtr<ServiceContext>  ServiceContextPtr;
+    typedef toolkit::AutoPtr<ServicesRuntime>  ServicesRuntimePtr;
+    
     ServicesRuntime();
     virtual ~ServicesRuntime();
 
@@ -20,15 +26,15 @@ public:
     bool unInitialize();
     bool start();
     bool stop();
+
+    ServiceRepositoryPtr &getRepository();
     
-
 private:
-
-    typedef toolkit::AutoPtr<ServiceRepository>  ServiceRepositoryPtr;    
-    typedef toolkit::AutoPtr<ServiceLoader>  ServiceLoaderPtr;
 
     ServiceRepositoryPtr _serviceRepositoryPtr;
     ServiceLoaderPtr     _serviceLoaderPtr;
+    ServiceContextPtr    _serviceContextPtr;
+    ServicesRuntimePtr   _servicesRuntime;
     
 };
 

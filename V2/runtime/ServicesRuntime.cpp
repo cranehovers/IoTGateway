@@ -3,7 +3,7 @@
 #include <runtime/ServicesRuntime.h>
 #include <runtime/ServiceRepository.h>
 #include <runtime/ServiceLoader.h>
-
+#include <runtime/ServiceContext.h>
 
 
 namespace GWSP {
@@ -21,8 +21,10 @@ bool ServicesRuntime::initialize()
 {
     _serviceRepositoryPtr = new ServiceRepository();
     _serviceLoaderPtr = new ServiceLoader();
+    _servicesRuntime = this;
+    _serviceContextPtr = new ServiceContext(_servicesRuntime, _serviceRepositoryPtr);
 
-    if (!_serviceRepositoryPtr->loadAllServices(*_serviceLoaderPtr))
+    if (!_serviceRepositoryPtr->loadAllServices(*_serviceLoaderPtr, *_serviceContextPtr))
     {
         ACE_DEBUG((LM_DEBUG, "service repository load all services failed\n"));
 
@@ -60,6 +62,12 @@ bool ServicesRuntime::start()
 bool ServicesRuntime::stop()
 {
     return true;
+}
+
+ServicesRuntime::ServiceRepositoryPtr&
+ServicesRuntime::getRepository()
+{
+    return _serviceRepositoryPtr;
 }
 
 }
