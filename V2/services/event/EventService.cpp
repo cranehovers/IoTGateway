@@ -11,7 +11,7 @@ GWSP::Service *instance(GWSP::ServiceContext &context)
     return new EventService(context);
 }
 
-static std::string eventServiceName("service.event");
+static std::string serviceName("service.event");
 
 
 EventService::EventService(GWSP::ServiceContext &context)
@@ -25,7 +25,7 @@ EventService::~EventService()
 
 std::string &EventService::name()
 {
-    return eventServiceName;
+    return serviceName;
 }
 
 bool EventService::initialize()

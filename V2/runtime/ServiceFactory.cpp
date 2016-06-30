@@ -7,6 +7,8 @@
 #include <services/event/EventService.h>
 #include <services/console/ConsoleService.h>
 #include <services/conf/ConfService.h>
+#include <services/reactor/ReactorService.h>
+
 
 
 
@@ -20,6 +22,7 @@ typedef Service *(*instance)(ServiceContext &context);
 instance servicesInstanceFunctionTable[] = {
     nullServiceInstance,
     Services::Conf::instance,
+    Services::Reactor::instance,
     Services::Event::instance,
     Services::Console::instance,
 };
