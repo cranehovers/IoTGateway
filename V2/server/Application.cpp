@@ -3,12 +3,15 @@
 #include <server/Application.h>
 #include <runtime/ServicesRuntime.h>
 #include <runtime/Service.h>
+#include <runtime/ServiceGetter.h>
 #include <runtime/ServiceRepository.h>
 #include <services/console/ConsoleService.h>
 
 
-namespace GWServer {
+using namespace Services::Console;
+using namespace GWSP;
 
+namespace GWServer {
 
 GWApplication::GWApplication()
 {
@@ -28,7 +31,32 @@ void GWApplication::init(int argc, char* argv[])
         ACE_DEBUG((LM_DEBUG, "initialize the service runtime failed\n"));
 
         return;
-    }    
+    }
+
+    try
+    {
+        std::string name("service.event");
+        _eventServicePtr = 
+        ServiceGetter::findByName<EventService>(_servicesRuntimePtr->context(), name);
+
+        _eventServicePtr->set(EventConsoleQuit, *this);
+    }
+    catch(...)
+    {
+        ACE_DEBUG((LM_DEBUG, "get event service failed at application\n"));
+        
+        return ;
+    }
+}
+
+int GWApplication::handleEvent(int id, const ACE_Message_Block &b)
+{
+    if (id == EventConsoleQuit)
+    {
+        _servicesRuntimePtr->stop();
+    }
+
+    return 0;
 }
 
 int GWApplication::run()
@@ -40,18 +68,20 @@ int GWApplication::run()
         return -1;
     }
 
-
-    std::string consoleServiceName("service.console");
-    
-    GWSP::ServiceRepository::ServicePtr consoleServicePtr =
-    _servicesRuntimePtr->getRepository()->get(consoleServiceName);
-
-    if (consoleServicePtr->name().compare(consoleServiceName) == 0)
+    try
     {
-        Services::Console::ConsoleService &consoleServiceRef =
-        *dynamic_cast<Services::Console::ConsoleService*> (consoleServicePtr.get());
+        std::string name("service.console");
 
-        consoleServiceRef.wait();
+        ConsoleService::Ptr consoleServicePtr =
+        ServiceGetter::findByName<ConsoleService>(_servicesRuntimePtr->context(), name);
+
+        consoleServicePtr->wait();
+
+        //_servicesRuntimePtr->stop();
+    }
+    catch(toolkit::NullPointerException e)
+    {
+        ACE_DEBUG((LM_DEBUG, "get ConsoleService failed at app run method\n"));
     }
 
     return 0;

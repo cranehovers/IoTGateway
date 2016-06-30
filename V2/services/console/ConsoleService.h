@@ -12,6 +12,8 @@ class ConsoleService : public GWSP::Service, public ACE_Task_Base
 {
 
 public:
+    typedef toolkit::AutoPtr<ConsoleService> Ptr;
+    
     ConsoleService(GWSP::ServiceContext &context);
     ~ConsoleService();
     

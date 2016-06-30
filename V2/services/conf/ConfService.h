@@ -11,6 +11,8 @@ class ConfService : public GWSP::Service
 {
 
 public:
+    typedef toolkit::AutoPtr<ConfService> Ptr;
+    
     ConfService(GWSP::ServiceContext &context);
     ~ConfService();
     

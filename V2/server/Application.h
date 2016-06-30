@@ -3,11 +3,17 @@
 
 #include <toolkit/ReferenceCountObject.h>
 #include <toolkit/AutoPtr.h>
-#include <runtime/ServicesRuntime.h>
+#include <runtime/ServicesRuntime.h>    
+#include <services/event/EventService.h>
+#include <services/event/EventNotifyHandler.h>
+
+using Services::Event::EventService;
+using Services::Event::EventNotifyHandler;
+
 
 namespace GWServer{
 
-class  GWApplication : public toolkit::RefCountedObject
+class  GWApplication : public toolkit::RefCountedObject, public EventNotifyHandler
 {
 public:
 	GWApplication();
@@ -15,16 +21,16 @@ public:
 
 	void init(int argc, char* argv[]);
 	virtual int run();
+	virtual int handleEvent(int id, const ACE_Message_Block &b);
 
 private:
 
 	GWApplication(const GWApplication&);
 	GWApplication& operator = (const GWApplication&);
 
-
-	typedef toolkit::AutoPtr<GWSP::ServicesRuntime> ServicesRuntimePtr;
-
-	ServicesRuntimePtr _servicesRuntimePtr;
+	GWSP::ServicesRuntime::Ptr _servicesRuntimePtr;
+	EventService::Ptr _eventServicePtr;
+	
 };
 
 }

@@ -4,7 +4,6 @@
 #include <toolkit/ReferenceCountObject.h>
 #include <toolkit/AutoPtr.h>
 
-
 namespace GWSP{
 
 class ServiceRepository;
@@ -14,10 +13,7 @@ class ServiceContext;
 class ServicesRuntime : public toolkit::RefCountedObject
 {
 public:
-    typedef toolkit::AutoPtr<ServiceRepository>  ServiceRepositoryPtr;    
-    typedef toolkit::AutoPtr<ServiceLoader>  ServiceLoaderPtr;
-    typedef toolkit::AutoPtr<ServiceContext>  ServiceContextPtr;
-    typedef toolkit::AutoPtr<ServicesRuntime>  ServicesRuntimePtr;
+    typedef toolkit::AutoPtr<ServicesRuntime>  Ptr;
     
     ServicesRuntime();
     virtual ~ServicesRuntime();
@@ -27,14 +23,18 @@ public:
     bool start();
     bool stop();
 
-    ServiceRepositoryPtr &getRepository();
+    ServiceRepository &repo();
+    ServiceContext &context();
     
 private:
+    typedef toolkit::AutoPtr<ServiceRepository>  ServiceRepositoryPtr;
+    typedef toolkit::AutoPtr<ServiceLoader>  ServiceLoaderPtr;
+    typedef toolkit::AutoPtr<ServiceContext>  ServiceContextPtr;
 
     ServiceRepositoryPtr _serviceRepositoryPtr;
     ServiceLoaderPtr     _serviceLoaderPtr;
     ServiceContextPtr    _serviceContextPtr;
-    ServicesRuntimePtr   _servicesRuntime;
+    ServicesRuntime::Ptr   _servicesRuntimePtr;
     
 };
 

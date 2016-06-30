@@ -6,9 +6,9 @@
 
 namespace GWSP {
 
-ServiceContext::ServiceContext(ServicesRuntimePtr &runtime, ServiceRepositoryPtr &repo)
-:_servicesRumtimePtr(runtime),
- _seviceRepositoryPtr(repo)
+ServiceContext::ServiceContext(ServicesRuntime &runtime, ServiceRepository &repo)
+:_servicesRumtime(runtime),
+ _seviceRepository(repo)
 {
 }
 

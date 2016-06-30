@@ -15,6 +15,8 @@ class ServiceLoader : public toolkit::RefCountedObject
 {
 
 public:
+    typedef toolkit::AutoPtr<ServiceLoader> Ptr;
+    
     ServiceLoader();
     virtual ~ServiceLoader();
 

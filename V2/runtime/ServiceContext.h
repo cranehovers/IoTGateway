@@ -8,24 +8,37 @@
 
 namespace GWSP {
 
+
 class ServicesRuntime;
 class ServiceRepository;
-
 
 class ServiceContext : public toolkit::RefCountedObject
 {
 public:
-    typedef toolkit::AutoPtr<ServicesRuntime> ServicesRuntimePtr;
-    typedef toolkit::AutoPtr<ServiceRepository> ServiceRepositoryPtr;
+    typedef toolkit::AutoPtr<ServiceContext> Ptr;
     
-    ServiceContext(ServicesRuntimePtr &runtime, ServiceRepositoryPtr &repo);
+    
+    ServiceContext(ServicesRuntime &runtime, ServiceRepository &repo);
     ~ServiceContext();
 
+    ServicesRuntime &runtime() const;
+    ServiceRepository &repo() const;
+
 private:
-    ServicesRuntimePtr &_servicesRumtimePtr;
-    ServiceRepositoryPtr &_seviceRepositoryPtr;
-    
+    ServicesRuntime &_servicesRumtime;
+    ServiceRepository &_seviceRepository;
 };
+
+inline ServicesRuntime &ServiceContext::runtime() const
+{
+    return _servicesRumtime;
+}
+
+inline ServiceRepository &ServiceContext::repo() const
+{
+    return _seviceRepository;
+}
+
 
 
 }

@@ -4,7 +4,8 @@
 
 
 #include <toolkit/ReferenceCountObject.h>
-#include <runtime/ServiceContext.h>
+#include <toolkit/AutoPtr.h>
+#include <toolkit/Exception.h>
 #include <string>
 
 namespace GWSP {
@@ -15,6 +16,8 @@ class Service : public toolkit::RefCountedObject
 {
 
 public:
+    typedef toolkit::AutoPtr<Service> Ptr;
+    
     Service(ServiceContext &context);
     virtual ~Service();
 
@@ -24,10 +27,17 @@ public:
     virtual bool start() = 0;
     virtual bool stop() = 0;
 
+    ServiceContext &context() const;
+
 private:
 
     ServiceContext &_serviceContext;
 };
+
+inline ServiceContext &Service::context() const
+{
+    return _serviceContext; 
+}
 
 }
 

@@ -1,12 +1,9 @@
 
-
-#include <runtime/ServiceRepository.h>
 #include <runtime/ServiceLoader.h>
 #include <runtime/ServiceContext.h>
 #include <runtime/Service.h>
+#include <runtime/ServiceRepository.h>
 #include <runtime/NullService.h>
-
-
 
 namespace GWSP {
 
@@ -80,6 +77,29 @@ bool ServiceRepository::startAllServices()
     return true;
 }
 
+bool ServiceRepository::stopAllServices()
+{    
+    std::map<std::string, ServicePtr>::iterator e;
+
+    {
+        ACE_Guard<SeviceMutex> guard(_serviceMutex);        
+
+        for (e = _servicesMap.begin(); e != _servicesMap.end(); ++e)
+        {
+            ACE_DEBUG((LM_DEBUG, "stop service: %s\n", e->first.c_str()));
+            
+            if (!e->second->stop())
+            {
+                ACE_DEBUG((LM_DEBUG, "the service %s start failed\n", e->first.c_str()));
+
+                return false;
+            }  
+        }
+    }
+
+    return true;
+}
+
 bool ServiceRepository::InitializeAllServices()
 {
     std::map<std::string, ServicePtr>::iterator e;
@@ -103,8 +123,7 @@ bool ServiceRepository::InitializeAllServices()
     return true;
 }
 
-
-ServiceRepository::ServicePtr &ServiceRepository::get(std::string &name)
+Service &ServiceRepository::get(std::string &name)
 {
     {
         ACE_Guard<SeviceMutex> guard(_serviceMutex);
@@ -114,7 +133,7 @@ ServiceRepository::ServicePtr &ServiceRepository::get(std::string &name)
 
         if (e != _servicesMap.end())
         {
-            return e->second;
+            return (*(e->second.get()));
         }
         else // NullService, it always exist.
         {
@@ -122,7 +141,7 @@ ServiceRepository::ServicePtr &ServiceRepository::get(std::string &name)
             
              e = _servicesMap.find(null);
 
-             return e->second;
+             return (*(e->second.get()));
         }
     }    
 }

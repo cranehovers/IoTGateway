@@ -13,6 +13,8 @@ class ReactorService : public GWSP::Service, public ACE_Task_Base
 {
 
 public:
+    typedef toolkit::AutoPtr<ReactorService> Ptr;
+
     ReactorService(GWSP::ServiceContext &context);
     ~ReactorService();
     

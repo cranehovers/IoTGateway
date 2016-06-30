@@ -1,9 +1,17 @@
+
+#include <runtime/ServiceGetter.h>
+#include <services/event/EventService.h>
+#include <services/event/EventNotifyHandler.h>
 #include <services/console/ConsoleService.h>
+
+
+using Services::Event::EventService;
+using Services::Event::EventNotifyHandler;
+using namespace GWSP;
+
 
 namespace Services {
 namespace Console {
-
-
 
 GWSP::Service *instance(GWSP::ServiceContext &context){return new ConsoleService(context);}
 
@@ -49,6 +57,8 @@ bool ConsoleService::start()
 
 bool ConsoleService::stop()
 {
+    _stopped = true;
+    
     return true;
 }
 
@@ -63,7 +73,25 @@ int ConsoleService::svc()
             case 'q':
             case 'Q':
             {
-                _stopped = true;
+                try
+                {
+                    std::string name("service.event");
+                    EventService::Ptr ePtr = 
+                    ServiceGetter::findByName<EventService>(context(), name);
+
+                    ACE_Message_Block *b = new ACE_Message_Block();
+                    
+                    b->msg_type(EventNotifyHandler::EventConsoleQuit);
+
+                    ePtr->putQ(b);
+                }
+                catch(...)
+                {
+                    ACE_DEBUG((LM_DEBUG, "get event service failed at application\n"));
+                    
+                    return -1;
+                }
+                
             }
             break;
 

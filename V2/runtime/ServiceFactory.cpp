@@ -8,6 +8,7 @@
 #include <services/console/ConsoleService.h>
 #include <services/conf/ConfService.h>
 #include <services/reactor/ReactorService.h>
+#include <services/serialport/SerialportService.h>
 
 
 
@@ -22,6 +23,7 @@ typedef Service *(*instance)(ServiceContext &context);
 instance servicesInstanceFunctionTable[] = {
     nullServiceInstance,
     Services::Conf::instance,
+    Services::SerialPort::instance,
     Services::Reactor::instance,
     Services::Event::instance,
     Services::Console::instance,

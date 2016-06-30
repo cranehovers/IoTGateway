@@ -1,9 +1,8 @@
 
-
-#include <runtime/ServicesRuntime.h>
 #include <runtime/ServiceRepository.h>
 #include <runtime/ServiceLoader.h>
 #include <runtime/ServiceContext.h>
+#include <runtime/ServicesRuntime.h>
 
 
 namespace GWSP {
@@ -21,8 +20,9 @@ bool ServicesRuntime::initialize()
 {
     _serviceRepositoryPtr = new ServiceRepository();
     _serviceLoaderPtr = new ServiceLoader();
-    _servicesRuntime = this;
-    _serviceContextPtr = new ServiceContext(_servicesRuntime, _serviceRepositoryPtr);
+    _servicesRuntimePtr = this;
+    _serviceContextPtr = new ServiceContext(*_servicesRuntimePtr, 
+                                            *_serviceRepositoryPtr);
 
     if (!_serviceRepositoryPtr->loadAllServices(*_serviceLoaderPtr, *_serviceContextPtr))
     {
@@ -61,13 +61,21 @@ bool ServicesRuntime::start()
 
 bool ServicesRuntime::stop()
 {
+    _serviceRepositoryPtr->stopAllServices();
+    
     return true;
 }
 
-ServicesRuntime::ServiceRepositoryPtr&
-ServicesRuntime::getRepository()
+ServiceRepository&
+ServicesRuntime::repo()
 {
-    return _serviceRepositoryPtr;
+    return *_serviceRepositoryPtr;
+}
+
+ServiceContext&
+ServicesRuntime::context()
+{
+    return *_serviceContextPtr;
 }
 
 }

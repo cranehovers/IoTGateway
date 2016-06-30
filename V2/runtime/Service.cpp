@@ -1,5 +1,7 @@
 
 #include <runtime/Service.h>
+#include <runtime/ServiceContext.h>
+
 
 namespace GWSP {
 
