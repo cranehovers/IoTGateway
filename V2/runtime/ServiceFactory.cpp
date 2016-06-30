@@ -6,6 +6,8 @@
 #include <runtime/ServiceContext.h>
 #include <services/event/EventService.h>
 #include <services/console/ConsoleService.h>
+#include <services/conf/ConfService.h>
+
 
 
 namespace GWSP {
@@ -16,10 +18,10 @@ namespace GWSP {
 typedef Service *(*instance)(ServiceContext &context);
 
 instance servicesInstanceFunctionTable[] = {
-nullServiceInstance,
-Services::Event::instance,
-Services::Console::instance,
-
+    nullServiceInstance,
+    Services::Conf::instance,
+    Services::Event::instance,
+    Services::Console::instance,
 };
 
 
