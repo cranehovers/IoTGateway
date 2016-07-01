@@ -90,9 +90,9 @@ bool ServiceRepository::stopAllServices()
             
             if (!e->second->stop())
             {
-                ACE_DEBUG((LM_DEBUG, "the service %s start failed\n", e->first.c_str()));
+                ACE_DEBUG((LM_DEBUG, "the service %s stop failed\n", e->first.c_str()));
 
-                return false;
+                //return false;
             }  
         }
     }
@@ -138,10 +138,10 @@ Service &ServiceRepository::get(std::string &name)
         else // NullService, it always exist.
         {
             std::string null("service.null");
-            
-             e = _servicesMap.find(null);
 
-             return (*(e->second.get()));
+            e = _servicesMap.find(null);
+
+            return (*(e->second.get()));
         }
     }    
 }

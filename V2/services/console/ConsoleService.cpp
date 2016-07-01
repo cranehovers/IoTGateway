@@ -97,7 +97,7 @@ int ConsoleService::svc()
 
             default:
             {
-                ACE_DEBUG((LM_DEBUG, "unknown command\n"));
+                //ACE_DEBUG((LM_DEBUG, "unknown command\n"));
             }
         }
     }

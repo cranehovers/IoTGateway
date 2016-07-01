@@ -91,6 +91,18 @@ bool SerialDevice::online()
     return true;
 }
 
+int SerialDevice::recv(unsigned char *buf, int n)
+{
+    return _serialport.recv(buf, n);
+}
+
+int SerialDevice::send(unsigned char *buf, int n)
+{
+    return _serialport.send(buf, n);
+}
+
+
+
 }
 }
 

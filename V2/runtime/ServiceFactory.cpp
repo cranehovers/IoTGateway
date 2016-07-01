@@ -9,6 +9,8 @@
 #include <services/conf/ConfService.h>
 #include <services/reactor/ReactorService.h>
 #include <services/serialport/SerialportService.h>
+#include <services/zigbee/ZigbeeService.h>
+
 
 
 
@@ -23,6 +25,7 @@ typedef Service *(*instance)(ServiceContext &context);
 instance servicesInstanceFunctionTable[] = {
     nullServiceInstance,
     Services::Conf::instance,
+    Services::Zigbee::instance,
     Services::SerialPort::instance,
     Services::Reactor::instance,
     Services::Event::instance,

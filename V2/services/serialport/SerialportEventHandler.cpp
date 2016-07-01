@@ -1,43 +1,1 @@
-
-#include <services/serialport/SerialDevice.h>
-#include <services/serialport/SerialportEventHandler.h>
-
-    
-namespace Services {
-namespace SerialPort {
-
-SerialportEventHandler::SerialportEventHandler(SerialDevice &device)
-:_serialDevice(device)
-{
-}
-
-
-SerialportEventHandler::~SerialportEventHandler()
-{
-}
-
-ACE_HANDLE SerialportEventHandler::get_handle (void) const
-{
-    return _serialDevice.get_handle();
-}
-
-
-int SerialportEventHandler::handle_input (ACE_HANDLE fd)
-{
-    return 0;
-}
-
-int SerialportEventHandler::handle_timeout (const ACE_Time_Value &tv,
-                                            const void *arg)
-{
-    return 0;
-}
-
-}
-}
-
-
-
-
-
-
+#include <services/event/EventService.h>#include <services/event/EventNotifyHandler.h>#include <services/serialport/SerialDevice.h>#include <services/serialport/SerialportEventHandler.h>    namespace Services {namespace SerialPort {SerialportEventHandler::SerialportEventHandler(SerialDevice &device,                                                EventService &eventQ):_serialDevice(device),_eventQ(eventQ){}SerialportEventHandler::~SerialportEventHandler(){}ACE_HANDLE SerialportEventHandler::get_handle (void) const{    return _serialDevice.get_handle();}int SerialportEventHandler::handle_input (ACE_HANDLE fd){       //reactor()->suspend_handler(this);        while (1)    {        unsigned char data[0xff];        ACE_OS::memset(data, 0, 0xff);            int n = _serialDevice.recv(data, 0xff);             // exception, FIXME: to handle this condition.        if (n <= 0 )        {            if ( ACE_OS::last_error()!=EWOULDBLOCK &&                 ACE_OS::last_error()!=EAGAIN)            {                ///FIXME...            }                break;        }        else // send data to eventQ        {            ACE_Message_Block *b = new ACE_Message_Block(n);            if (b)            {                b->msg_type(EventNotifyHandler::EventSerialportRecvData);                ACE_OS::memcpy(b->base(), data, n);                _eventQ.putQ(b);            }        }    }    //reactor()->resume_handler(this);    return 0;}int SerialportEventHandler::handle_timeout (const ACE_Time_Value &tv,                                            const void *arg){    return 0;}int SerialportEventHandler::handleEvent(int id, const ACE_Message_Block &b){    if (id == EventNotifyHandler::EventSerialportSendData)    {        return _serialDevice.send((unsigned char*)b.base(),b.size());    }    return 0;}}}

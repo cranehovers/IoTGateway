@@ -3,11 +3,14 @@
 #include <runtime/ServiceRepository.h>
 #include <runtime/ServicesRuntime.h>
 #include <runtime/ServiceGetter.h>
-#include <services/serialport/SerialportEventHandler.h>
-#include <services/serialport/SerialDevice.h>
 #include <services/conf/ConfService.h>
 #include <services/reactor/ReactorService.h>
+#include <services/event/EventService.h>
+#include <services/event/EventNotifyHandler.h>
 #include <services/serialport/SerialportService.h>
+#include <services/serialport/SerialportEventHandler.h>
+#include <services/serialport/SerialDevice.h>
+
 
 
 using GWSP::ServiceGetter;
@@ -41,16 +44,15 @@ std::string &SerialPortService::name()
 
 bool SerialPortService::initialize()
 {
-    _serialDevicePtr = new SerialDevice();
-    _eventHandlerPtr = new SerialportEventHandler(*_serialDevicePtr.get());
-
     try
     {
         std::string conf("service.conf");
         std::string reactor("service.reactor");
+        std::string eventQ("service.event");
         
         _confPtr = ServiceGetter::findByName<ConfService>(context(), conf);
         _reactorPtr = ServiceGetter::findByName<ReactorService>(context(), reactor);
+        _eventQPtr = ServiceGetter::findByName<EventService>(context(), eventQ);
 
     }                                                           
     catch(toolkit::NullPointerException e)
@@ -59,6 +61,12 @@ bool SerialPortService::initialize()
 
         return false;
     }
+
+    _serialDevicePtr = new SerialDevice();
+    _eventHandlerPtr = new SerialportEventHandler(*_serialDevicePtr, *_eventQPtr);
+
+    // set event handler into event queue to get data from upper layer
+    _eventQPtr->set(EventNotifyHandler::EventSerialportSendData, *_eventHandlerPtr);
     
     return true;
 }
@@ -75,7 +83,7 @@ bool SerialPortService::start()
     {
         _serialDevicePtr->setProperty( _confPtr->_serialPort, _confPtr->_baudrate);
     }
-
+    
     if (activate() == -1)
     {
         ACE_DEBUG((LM_DEBUG, "serialport service thread start failed\n"));
@@ -109,6 +117,14 @@ int SerialPortService::svc()
         
         ACE_DEBUG((LM_DEBUG, "serialport online\n"));
 
+        // notify the serialport online
+        {
+            ACE_Message_Block *b = new ACE_Message_Block();
+            b->msg_type(EventNotifyHandler::EventSerialPortOnline);
+
+            _eventQPtr->putQ(b);
+        }
+
         // register the event handler into reactor
         _reactorPtr->register_handler(_eventHandlerPtr.get(),
                                     ACE_Event_Handler::READ_MASK);
@@ -120,6 +136,7 @@ int SerialPortService::svc()
         
         int portStatus = ONLINE;
         int currentStatus = ONLINE;
+        int count_tick = 0;
 
         while(!_stopped)
         {
@@ -127,6 +144,24 @@ int SerialPortService::svc()
 
             if (currentStatus  == portStatus )
             {
+                if(currentStatus == ONLINE )
+                {
+                    count_tick ++;
+
+                    if (count_tick > 20 )
+                    {
+                        count_tick = 0;
+                        
+                        // update the network
+                        {
+                            ACE_Message_Block *b = new ACE_Message_Block();
+                            b->msg_type(EventNotifyHandler::EventSerialPortLongOnline);
+                        
+                            _eventQPtr->putQ(b);
+                        }
+                    }
+                }
+                
                 ACE_OS::sleep(1);
 
                 continue;               
@@ -134,6 +169,7 @@ int SerialPortService::svc()
             else
             {
                 portStatus = currentStatus;
+                count_tick = 0;
 
                 if (portStatus == OFFLINE)
                 {
@@ -141,6 +177,14 @@ int SerialPortService::svc()
                     _serialDevicePtr->close();
 
                     ACE_DEBUG((LM_DEBUG, "serialport offline\n"));
+
+                    // notify the serialport offline
+                    {
+                        ACE_Message_Block *b = new ACE_Message_Block();
+                        b->msg_type(EventNotifyHandler::EventSerialPortOffline);
+
+                        _eventQPtr->putQ(b);
+                    }
 
                     break;                    
                 }
@@ -150,8 +194,6 @@ int SerialPortService::svc()
         
     }
     
-
-
     return 0;
 }
 

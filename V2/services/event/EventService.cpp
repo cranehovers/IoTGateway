@@ -54,7 +54,9 @@ bool EventService::start()
         ACE_DEBUG((LM_DEBUG, "EventService service thread start failed\n"));
         
         return false;
-    } 
+    }
+
+    _eventQ.activate();
     
     return true;
 }
@@ -102,6 +104,41 @@ int EventService::putQ(ACE_Message_Block *b)
     return 0;
 }
 
+static const char* getTxt(int id)
+{
+    switch (id)
+    {
+        case EventNotifyHandler::EventSerialPortOffline:
+        {
+            return "EventSerialPortOffline";
+        }
+        break;
+        case EventNotifyHandler::EventSerialPortOnline:
+        {
+            return "EventSerialPortOnline";
+        }
+        break;
+       
+       case EventNotifyHandler::EventSerialPortLongOnline:
+       {
+           return "EventSerialPortLongOnline";
+       }
+       break;
+       case EventNotifyHandler::EventSerialportRecvData:
+       {
+           return "EventSerialportRecvData";
+       }
+       break;
+       case EventNotifyHandler::EventSerialportSendData:
+       {
+           return "EventSerialportSendData";
+       }
+       break;
+    }
+
+    return "unknown";
+}
+
 int EventService::svc()
 {
     ACE_DEBUG((LM_DEBUG,
@@ -122,8 +159,8 @@ int EventService::svc()
             continue;
         }
 
-        //ACE_DEBUG((LM_DEBUG, "*** get type[%x] size[%d] ****\n", b->msg_type(),
-        //_eventQ.message_count()));
+        ACE_DEBUG((LM_DEBUG, "*** get type[ %s ] size[%x] ****\n", getTxt(b->msg_type()),
+        _eventQ.message_count()));
 
         _eventTablePrt->handleEvent(b->msg_type(), *b);
 

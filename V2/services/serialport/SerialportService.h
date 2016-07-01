@@ -7,6 +7,10 @@
 
 using Services::Conf::ConfService;
 using Services::Reactor::ReactorService;
+using Services::Event::EventService;
+using Services::Event::EventNotifyHandler;
+
+
 
 namespace Services {
 namespace SerialPort {
@@ -34,6 +38,7 @@ private:
     typedef toolkit::AutoPtr<SerialportEventHandler> SerialportEventHandlerPtr;
     typedef toolkit::AutoPtr<ConfService> ConfServicePtr;
     typedef toolkit::AutoPtr<ReactorService> ReactorServicePtr;
+    typedef toolkit::AutoPtr<EventService> EventServicePtr;
     
     
     bool _stopped;
@@ -41,6 +46,7 @@ private:
     SerialportEventHandlerPtr _eventHandlerPtr;
     ConfServicePtr _confPtr;
     ReactorServicePtr _reactorPtr;
+    EventServicePtr _eventQPtr;
     
 };
 

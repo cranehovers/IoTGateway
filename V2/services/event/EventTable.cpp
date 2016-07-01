@@ -27,8 +27,12 @@ EventTable::~EventTable()
 
 void EventTable::set(int id, EventNotifyHandler &handler)
 {
-    if (id < 0xff && id >=0)
+    ACE_DEBUG((LM_DEBUG, "%N:%l set:%x\n", id));
+
+    if (id < 0xff && id >=0) 
+    {
         _handlerTable[id]->add(handler);
+    }
 }
 
 int EventTable::handleEvent(int id, const ACE_Message_Block &b)
@@ -69,7 +73,7 @@ int EventTable::EventNode::handleEvent(int id, const ACE_Message_Block &b)
 {
     int res = 0;
     std::vector<EventNotifyHandler*>::iterator e;
-    
+
     for (e = _handleVec.begin(); e != _handleVec.end(); ++e)
     {
         res |=(*e)->handleEvent(id, b);

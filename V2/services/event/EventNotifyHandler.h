@@ -12,9 +12,12 @@ class EventNotifyHandler
 public:
 
     enum {
-    EventNotifySerialPortOffline = 0,
-    EventNotifySerialPortOnline,
+    EventSerialPortOffline = 0,
+    EventSerialPortOnline,
+    EventSerialPortLongOnline,
     EventConsoleQuit,
+    EventSerialportRecvData,
+    EventSerialportSendData,
     
     };
     
