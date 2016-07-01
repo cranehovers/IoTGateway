@@ -1,0 +1,55 @@
+#
+# This file defines Makefile for ProxyService
+#
+
+# define some paths variable
+
+TOP_DIR := $(shell pwd)
+SOURCE_DIR := $(TOP_DIR)
+REF_DIR := $(TOP_DIR)/../../../../android
+
+# define build macros
+#CC = arm-linux-androideabi-g++
+
+CFLAGS += -shared -fPIC -g
+CFLAGS += -O2
+CFLAGS += -D_LARGEFILE_SOURCE
+CFLAGS += -D_FILE_OFFSET_BITS=64
+CFLAGS += -D_REENTRANT
+CFLAGS += -D_GNU_SOURCE
+CFLAGS += -DACE_HAS_CUSTOM_EXPORT_MACROS=0
+CFLAGS += -D__ACE_INLINE__
+CFLAGS += -DWITH_POSIX
+
+
+CFLAGS += -I$(SOURCE_DIR)
+CFLAGS += -I$(REF_DIR)
+
+LDFLAGS += -L$(REF_DIR)/ace/
+
+LIBS += -llog
+LIBS += -lACE
+LIBS += -ldl
+LIBS += -lsupc++
+LIBS += -lgnustl_shared
+
+
+APP := libproxyservice.so
+
+SOURCE_FILES := $(SOURCE_DIR)/ProxyService.cpp
+SOURCE_FILES += $(SOURCE_DIR)/ServiceCfg.cpp
+SOURCE_FILES += $(SOURCE_DIR)/ServiceManager.cpp
+SOURCE_FILES += $(SOURCE_DIR)/Service.cpp
+
+
+#deinfe targetes
+.PHONY: all
+
+all: $(APP)
+
+$(APP): $(SOURCE_FILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+
+
+
