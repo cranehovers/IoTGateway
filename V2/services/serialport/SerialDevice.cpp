@@ -47,7 +47,7 @@ bool SerialDevice::open()
     serial_port_params.xonlim = 0;
     serial_port_params.xofflim = 0;
     serial_port_params.readmincharacters = 0;
-    serial_port_params.readtimeoutmsec = 1000; // 10 seconds
+    serial_port_params.readtimeoutmsec = 0; // 10 seconds
     serial_port_params.paritymode = "none"; //"EVEN";
     serial_port_params.ctsenb = false;
     serial_port_params.rtsenb = 0;

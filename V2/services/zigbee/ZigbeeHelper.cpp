@@ -26,6 +26,11 @@ void ZigbeeHelper::set(ZigbeeFrameRouterPtr ptr)
     _router = ptr;
 }
 
+void ZigbeeHelper::set(ZigbeeServerPtr ptr)
+{
+    _server = ptr;
+}
+
 ZigbeeHelper::EventServicePtr ZigbeeHelper::eventQ () const
 {
     return _eventQ;
@@ -45,6 +50,12 @@ ZigbeeHelper::ZigbeeFrameRouterPtr ZigbeeHelper::router () const
 {
     return _router;
 }
+
+ZigbeeHelper::ZigbeeServerPtr ZigbeeHelper::sever () const
+{
+    return _server;
+}
+
 
 }
 }

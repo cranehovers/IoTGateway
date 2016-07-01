@@ -9,7 +9,10 @@
 #include <services/conf/ConfService.h>
 #include <services/reactor/ReactorService.h>
 #include <services/serialport/SerialportService.h>
+#include <services/coapserver/Zigbee_CoAP_Service.h>
 #include <services/zigbee/ZigbeeService.h>
+#include <services/coaprd/CoAPRdService.h>
+#include <services/coapproxy/CoAPProxyService.h>
 
 
 
@@ -26,6 +29,9 @@ instance servicesInstanceFunctionTable[] = {
     nullServiceInstance,
     Services::Conf::instance,
     Services::Zigbee::instance,
+    Services::CoAPRD::instance,
+    Services::CoAPProxy::instance,
+    Services::CoAPServer::instance,
     Services::SerialPort::instance,
     Services::Reactor::instance,
     Services::Event::instance,

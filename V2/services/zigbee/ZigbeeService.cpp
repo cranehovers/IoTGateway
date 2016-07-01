@@ -5,6 +5,7 @@
 #include <runtime/ServiceGetter.h>
 #include <services/event/EventService.h>
 #include <services/event/EventNotifyHandler.h>
+#include <services/coapserver/Zigbee_CoAP_Service.h>
 #include <services/zigbee/ZigbeeEventHandler.h>
 #include <services/zigbee/ZigbeeService.h>
 #include <services/zigbee/Zigbee_Frame_Router.h>
@@ -45,7 +46,11 @@ bool ZigbeeService::initialize()
     try
     {
         std::string eventQ("service.event");
+        std::string server("service.coapserver");
+
         _eventQPtr = ServiceGetter::findByName<EventService>(context(), eventQ);
+        _coapServerPtr = ServiceGetter::findByName<ZigbeeServer>(context(), server);
+        
 
     }                                                           
     catch(toolkit::NullPointerException e)
@@ -70,6 +75,8 @@ bool ZigbeeService::initialize()
     _zigbeeHelper::instance()->set(_network);
     _zigbeeHelper::instance()->set(_frameRouterPtr);
     _zigbeeHelper::instance()->set(_eventQPtr);
+    _zigbeeHelper::instance()->set(_coapServerPtr);
+    
     
     return true;
 }

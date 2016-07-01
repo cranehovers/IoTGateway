@@ -53,10 +53,10 @@ void ZigbeeCoordination::create_device()
         device->set_short_addr(short_addr);
         device->set_bind_ep(get_bind_ep());
 
-        ACE_HEX_DUMP((LM_DEBUG, (const char*)short_addr, 2, "\n\nnew node:"));
-
         if ( true == device->set())
         {
+            ACE_HEX_DUMP((LM_DEBUG, (const char*)short_addr, 2, "\n\nnew node:"));
+
             child_list_.push_back(device);
 
             device->get_self_basic_info();

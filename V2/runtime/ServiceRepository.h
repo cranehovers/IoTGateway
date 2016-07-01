@@ -31,6 +31,7 @@ public:
     bool startAllServices();
     bool stopAllServices();
     bool InitializeAllServices();
+    bool preInitializeAllServices();
     bool loadAllServices(ServiceLoader &loader, ServiceContext &context);
     bool add(std::string &name, Service *s);
     Service &get(std::string &name);

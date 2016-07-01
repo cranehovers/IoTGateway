@@ -123,6 +123,29 @@ bool ServiceRepository::InitializeAllServices()
     return true;
 }
 
+bool ServiceRepository::preInitializeAllServices()
+{
+    std::map<std::string, ServicePtr>::iterator e;
+
+    {
+        ACE_Guard<SeviceMutex> guard(_serviceMutex);        
+
+        for (e = _servicesMap.begin(); e != _servicesMap.end(); ++e)
+        {
+            ACE_DEBUG((LM_DEBUG, "initialize service: %s\n", e->first.c_str()));
+            
+            if (!e->second->preInitialize())
+            {
+                ACE_DEBUG((LM_DEBUG, "the service %s initialize failed\n", e->first.c_str()));
+
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
 Service &ServiceRepository::get(std::string &name)
 {
     {

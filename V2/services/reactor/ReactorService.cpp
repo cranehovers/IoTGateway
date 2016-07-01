@@ -75,7 +75,7 @@ int ReactorService::svc (void)
     ACE_Time_Value timeout;
     timeout.sec(3);
 
-    ACE_DEBUG((LM_DEBUG,"running reactor service thread\n"));
+    ACE_DEBUG((LM_DEBUG,"Running reactor service thread\n"));
 
     for (;;)
     {

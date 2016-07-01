@@ -93,6 +93,11 @@ std::string &ConfService::name()
 
 bool ConfService::initialize()
 {
+    return true;
+}
+
+bool ConfService::preInitialize()
+{
     std::string iniName("gateway.conf");
     ACE_Configuration_Heap confHeap;
     ACE_Ini_ImpExp ini(confHeap);
@@ -157,7 +162,7 @@ void ConfService::defaultValue()
     _mcastAddrPort  = 5683;
     _svcAddrPort    = 6683;
     _proxyAddrPort  = 7683;
-    _rdAddrPort     = 8683;
+    _rdAddrPort     = 5687;
     _coapDebugLevel = 3;    
     _baudrate       = 38400;
         

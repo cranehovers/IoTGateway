@@ -96,6 +96,8 @@ bool SerialPortService::start()
 
 bool SerialPortService::stop()
 {
+    _reactorPtr->remove_handler(_eventHandlerPtr.get());
+    
     _stopped = true;
     wait();
     

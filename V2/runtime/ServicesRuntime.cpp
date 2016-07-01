@@ -31,6 +31,8 @@ bool ServicesRuntime::initialize()
         return false;
     }
 
+    _serviceRepositoryPtr->preInitializeAllServices();
+
     if (!_serviceRepositoryPtr->InitializeAllServices())
     {
         ACE_DEBUG((LM_DEBUG, "service repository initialize all services failed\n"));

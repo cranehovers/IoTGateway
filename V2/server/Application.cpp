@@ -22,7 +22,7 @@ GWApplication::~GWApplication()
 }
 
 
-void GWApplication::init(int argc, char* argv[])
+bool GWApplication::init(int argc, char* argv[])
 {
     _servicesRuntimePtr = new GWSP::ServicesRuntime();
 
@@ -30,7 +30,7 @@ void GWApplication::init(int argc, char* argv[])
     {
         ACE_DEBUG((LM_DEBUG, "initialize the service runtime failed\n"));
 
-        return;
+        return false;
     }
 
     try
@@ -45,8 +45,10 @@ void GWApplication::init(int argc, char* argv[])
     {
         ACE_DEBUG((LM_DEBUG, "get event service failed at application\n"));
         
-        return ;
+        return false;
     }
+
+    return true;
 }
 
 int GWApplication::handleEvent(int id, const ACE_Message_Block &b)
@@ -96,7 +98,10 @@ int main(int argc, char** argv)
 
     try
     {
-        pApp->init(argc, argv);
+        if (!pApp->init(argc, argv))
+        {
+            return -1;
+        }
     }
     catch (toolkit::Exception& exc)
     {

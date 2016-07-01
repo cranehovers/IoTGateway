@@ -19,7 +19,7 @@ public:
 	GWApplication();
 	~GWApplication();
 
-	void init(int argc, char* argv[]);
+	bool init(int argc, char* argv[]);
 	virtual int run();
 	virtual int handleEvent(int id, const ACE_Message_Block &b);
 

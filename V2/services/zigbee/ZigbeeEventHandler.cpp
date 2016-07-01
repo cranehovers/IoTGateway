@@ -63,6 +63,7 @@ int ZigbeeEventHandler::handleEvent(int id, const ACE_Message_Block &b)
     {
         _zigbeeHelper::instance()->network()->clear();
         _zigbeeHelper::instance()->cache()->clear();
+        _zigbeeHelper::instance()->sever()->reset();
 
         // update protocol stack.
         delete _parser;

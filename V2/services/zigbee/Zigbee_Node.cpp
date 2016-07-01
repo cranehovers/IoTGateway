@@ -211,9 +211,9 @@ void ZigbeeNode::set_ep_simple_desc(unsigned char ep, NodeSimpleDesc *desc)
 
 void ZigbeeNode::create_coap_resource(unsigned char ep, NodeSimpleDesc *desc)
 {
-    //ZigbeeCoAPService::instance()->create_resource_by_zigbeenode(ep, desc, this);
-    ACE_DEBUG((LM_DEBUG, "create ep :%x\n", ep));
-    
+    _zigbeeHelper::instance()->sever()->create_resource_by_zigbeenode(ep, desc, this);
+
+    ACE_DEBUG((LM_DEBUG, "create CoAP resource by ep :%x\n", ep));
 }
 
 }

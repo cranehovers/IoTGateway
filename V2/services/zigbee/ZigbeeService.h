@@ -6,6 +6,8 @@
 
 using Services::Event::EventService;
 using Services::Event::EventNotifyHandler;
+using Services::CoAPServer::ZigbeeServer;
+
 
 
 namespace Services {
@@ -37,6 +39,8 @@ private:
     typedef toolkit::AutoPtr<ZigbeeFrameRouter> ZigbeeFrameRouterPtr;
     typedef toolkit::AutoPtr<ZigbeeNodeCache> ZigbeeNodeCachePtr;
     typedef toolkit::AutoPtr<ZigbeeNetwork> ZigbeeNetworkPtr;
+    typedef toolkit::AutoPtr<ZigbeeServer> ZigbeeServerPtr;
+    
 
     
     EventServicePtr _eventQPtr;
@@ -44,6 +48,7 @@ private:
     ZigbeeFrameRouterPtr _frameRouterPtr;
     ZigbeeNodeCachePtr _cachePtr;
     ZigbeeNetworkPtr _network;
+    ZigbeeServerPtr _coapServerPtr;
 
 };
 

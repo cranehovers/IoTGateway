@@ -23,6 +23,7 @@ public:
 
     virtual std::string &name() = 0;
     virtual bool initialize() = 0;
+    virtual bool preInitialize();
     virtual bool unInitialize() = 0;
     virtual bool start() = 0;
     virtual bool stop() = 0;

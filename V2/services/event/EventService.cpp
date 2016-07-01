@@ -159,8 +159,8 @@ int EventService::svc()
             continue;
         }
 
-        ACE_DEBUG((LM_DEBUG, "*** get type[ %s ] size[%x] ****\n", getTxt(b->msg_type()),
-        _eventQ.message_count()));
+        //ACE_DEBUG((LM_DEBUG, "*** get type[ %s ] size[%x] ****\n", getTxt(b->msg_type()),
+        //_eventQ.message_count()));
 
         _eventTablePrt->handleEvent(b->msg_type(), *b);
 

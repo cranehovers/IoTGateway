@@ -14,6 +14,11 @@ Service::~Service()
 {
 }
 
+bool Service::preInitialize()
+{
+    return true;
+}
+    
 }
 
 
