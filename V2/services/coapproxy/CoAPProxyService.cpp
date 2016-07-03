@@ -43,7 +43,7 @@ bool CoAPProxyService::initialize()
         _reactorPtr = ServiceGetter::findByName<ReactorService>(context(), reactor);
 
     }                                                           
-    catch(toolkit::NullPointerException e)
+    catch(toolkit::NullPointerException &e)
     {
         ACE_DEBUG((LM_DEBUG, "get service failed at SerialPortService\n"));
 

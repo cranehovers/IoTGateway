@@ -55,7 +55,7 @@ bool SerialPortService::initialize()
         _eventQPtr = ServiceGetter::findByName<EventService>(context(), eventQ);
 
     }                                                           
-    catch(toolkit::NullPointerException e)
+    catch(toolkit::NullPointerException &e)
     {
         ACE_DEBUG((LM_DEBUG, "get service failed at SerialPortService\n"));
 

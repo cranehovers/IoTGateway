@@ -53,7 +53,7 @@ bool ZigbeeService::initialize()
         
 
     }                                                           
-    catch(toolkit::NullPointerException e)
+    catch(toolkit::NullPointerException &e)
     {
         ACE_DEBUG((LM_DEBUG, "get service failed at ZigbeeService\n"));
 

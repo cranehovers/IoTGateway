@@ -81,7 +81,7 @@ int GWApplication::run()
 
         //_servicesRuntimePtr->stop();
     }
-    catch(toolkit::NullPointerException e)
+    catch(toolkit::NullPointerException &e)
     {
         ACE_DEBUG((LM_DEBUG, "get ConsoleService failed at app run method\n"));
     }
