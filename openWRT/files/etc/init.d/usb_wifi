@@ -1,0 +1,8 @@
+#!/bin/sh
+
+MT7601_AP="/lib/modules/3.18.18/mt7601Uap.ko"
+
+if [ -f "$MT7601_AP" ]; then
+    insmode $MT7601_AP
+fi
+

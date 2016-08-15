@@ -1,0 +1,14 @@
+#!/bin/sh
+
+MT7601_AP="/lib/modules/3.18.18/mt7601Uap.ko"
+
+if [ -f "$MT7601_AP" ]; then
+    insmod $MT7601_AP
+    sleep 1
+    ifconfig ra0 up
+    sleep 1
+    ifconfig ra0 192.168.1.1
+    sleep 1
+    wpa_supplicant -ira0 -Dwext -c/etc/wpa_supplicant.conf
+fi
+
