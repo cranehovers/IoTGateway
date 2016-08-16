@@ -10,7 +10,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
 
 AUX_SOURCE_DIRECTORY("${PROJECT_SOURCE_DIR}/server" server_sources)
 
-add_definitions(-DWITH_POSIX)
+add_definitions(-DWITH_POSIX -DACE_HAS_AIO_CALLS)
 
 
 ADD_EXECUTABLE(${GWSP} 
@@ -38,4 +38,6 @@ message(${ACE})
 TARGET_LINK_LIBRARIES(${GWSP} 
                       ${ACE}
                       ${coap}
+                      pthread
+                      rt
                     )

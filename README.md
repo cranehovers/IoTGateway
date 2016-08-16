@@ -1,7 +1,7 @@
 
 This project is for 
 	
-	building OpenWRT image base on HI3718 board
+	IOTGateway and how to builduing openWRT iamge on Hi3718 borad
 
 Please following belolw command to build OpenWRT image
 
