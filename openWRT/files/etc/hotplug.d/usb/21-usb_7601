@@ -1,0 +1,20 @@
+#!/bin/sh
+
+PRODUCT_ID="148f/7601/0"
+INF="255/255/255"
+
+logger -t HOTPLUG "WIFI Configuration...."
+
+if [ "${ACTION}"x = "add"x ];then
+if [ "${PRODUCT_ID}"x = "${PRODUCT}"x ];then
+if [ "${INF}"x = "${INTERFACE}"x ];then
+
+    logger -t HOTPLUG "WIFI Configuration...begin..."
+    ifconfig ra0 up
+    ifconfig ra0 192.168.1.1
+    iwconfig ra0 essid "openWRT"
+    logger -t HOTPLUG "WIFI Configuration OK"
+fi
+fi
+fi
+
