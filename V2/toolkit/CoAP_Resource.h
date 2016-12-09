@@ -30,7 +30,7 @@ public:
         void* handler_put;
         void* handler_delete;
     }method_handler_t;
-   
+
     typedef std::list<CoAPResource*> coap_resource_cache_t;
 
     CoAPResource(CoAPWrapper* ctx);
@@ -53,12 +53,12 @@ public:
     void update_lifetime(int lt);
     void update_et(std::string &et);
     void update_context(std::string &con);
-    
+
     virtual void handler_get(CoAPCallback &callback);
     virtual void handler_post(CoAPCallback &callback);
     virtual void handler_put(CoAPCallback &callback);
     virtual void handler_delete(CoAPCallback &callback);
-    
+
 protected:
 
     void* Create_i();
@@ -67,15 +67,25 @@ protected:
     void add_node_to_cache(CoAPResource *r);
     void find_domain_list(std::list<std::string> &domain_list);
     void find_ep_result(std::string &ep);
-    
+
+public:
+
+    /*ugly... modify later*/
+    static void timeout();
+    void live_decrease();
+    void live_plus();
+    bool die();
+
+
 private:
 
     std::string uri_;
     std::string payload_;
     CoAP_Attr attr_;
-    
+
     CoAPWrapper* coap_ctx_;
     void *coap_resource_;
+    int live_count;
 
     static coap_resource_cache_t ep_cache_;
 };

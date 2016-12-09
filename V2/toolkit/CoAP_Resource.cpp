@@ -108,6 +108,7 @@ CoAPResource::CoAPResource(CoAPWrapper* ctx)
 :coap_ctx_(ctx)
 {
     ACE_ASSERT(coap_ctx_ != 0);
+    live_count = 10; // 5second *10 = 50 second live time.
 }
 
 CoAPResource::~CoAPResource()
@@ -375,37 +376,69 @@ void CoAPResource::find_ep_result(std::string &ep_result)
 
     for (; e != ep_cache_.end(); ++e)
     {
-        std::string d = (*e)->get_domain();
-        std::string ep = (*e)->get_ep();
-        std::string con = (*e)->get_context();
-        std::string et = (*e)->get_et();
-        std::string payload = (*e)->get_payload();
 
-        if( d.empty() || ep.empty() || con.empty())
-        {
-            continue;    
-        }
-        
-        ep_result += "<"+con+">;ep=" + ep;
-        ep_result += ";d=\""+ d +"\"";
-        
-        if(!et.empty())
-        {
-            ep_result += ";et="+ et;
-        }
-                
-        ep_result += ",";
+       if ( !(*e)->die())
+       {
+            std::string d = (*e)->get_domain();
+            std::string ep = (*e)->get_ep();
+            std::string con = (*e)->get_context();
+            std::string et = (*e)->get_et();
+            std::string payload = (*e)->get_payload();
 
-        if (!payload.empty())
-        {
-            if (find_sub_resource_from_payload(payload, con, ep, ep_result) == true)
+            if( d.empty() || ep.empty() || con.empty())
             {
-                ep_result += ",";
+                continue;    
+            }
+            
+            ep_result += "<"+con+">;ep=" + ep;
+            ep_result += ";d=\""+ d +"\"";
+            
+            if(!et.empty())
+            {
+                ep_result += ";et="+ et;
+            }
+                    
+            ep_result += ",";
+
+            if (!payload.empty())
+            {
+                if (find_sub_resource_from_payload(payload, con, ep, ep_result) == true)
+                {
+                    ep_result += ",";
+                }
             }
         }
     }
     
 }
+
+/* it's very ugly, must modify later.*/
+/* this method check the resource is validation or not*/
+void CoAPResource::timeout()
+{
+    CoAPResource::coap_resource_cache_t::iterator e = ep_cache_.begin();
+
+    for (; e != ep_cache_.end(); ++e)
+    {
+       (*e)->live_decrease();
+    }
+}
+
+void CoAPResource::live_decrease()
+{
+    live_count -= 1;
+}
+
+void CoAPResource::live_plus()
+{
+    live_count += 1;
+}
+
+bool CoAPResource::die()
+{
+    return (live_count <= 0 ? true : false);
+}
+
 
 }
 

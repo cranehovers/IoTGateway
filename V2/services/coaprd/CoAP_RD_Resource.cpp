@@ -94,6 +94,8 @@ void CoAP_RD_Resource::handler_post(CoAPCallback &callback)
     if (r)
     {
         r->update(callback);
+        r->live_plus();
+        
         get_wrapper()->changed_request(callback);
     }
     else

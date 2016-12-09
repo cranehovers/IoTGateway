@@ -125,6 +125,7 @@ int CoAPRDService::handle_timeout (const ACE_Time_Value &tv,
     
     _coapWrapperPtr->time_out(timeout);
     _reactorPtr->schedule_timer(this, 0, timeout);
+    _rdRes->timeout();
     
     return 0;
 
